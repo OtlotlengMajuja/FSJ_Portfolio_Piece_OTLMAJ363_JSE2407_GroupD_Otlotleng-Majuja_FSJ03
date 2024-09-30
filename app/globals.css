@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f0f4f8;
+  --foreground: #1a202c;
+  --primary: #2c7a7b;
+  --primary-dark: #1a5756;
+  --secondary: #4a5568;
+  --secondary-dark: #2d3748;
+  --accent: #ed8936;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a202c;
+    --foreground: #f0f4f8;
+    --primary: #4fd1c5;
+    --primary-dark: #38b2ac;
+    --secondary: #a0aec0;
+    --secondary-dark: #718096;
+    --accent: #fbd38d;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Anek Devanagari, sans-serif;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4;
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-full transition-colors duration-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary-dark;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
