@@ -13,7 +13,7 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                 {/* Logo and link to the home page */}
                 <Link href="/" className="flex items-center">
-                    <span className="font-['Anek_Devanagari'] text-3xl text-white">Shopporium</span>
+                    <span className="font-['Anek_Devanagari'] text-3xl text-white">Curated Finds Boutique</span>
                 </Link>
 
                 {/* Navigation links */}
