@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://next-ecommerce-api.vercel.app';
+const API_BASE_URL = '/api'; // This assumes your API routes are under /api
 
 /**
  * Fetches a list of products from the e-commerce API.
@@ -8,32 +8,24 @@ const API_BASE_URL = 'https://next-ecommerce-api.vercel.app';
  * @param {number} [params.limit=20] - The number of products to fetch per page. Defaults to 20.
  * @param {string} [params.search=''] - The search query to filter products by name or description.
  * @param {string} [params.category=''] - The category to filter products.
- * @param {string} [params.sort=''] - The sort option for products (e.g., 'price_asc', 'price_desc').
+ * @param {string} [params.sortBy=''] - The field to sort by (e.g., 'price', 'title').
+ * @param {string} [params.sortOrder=''] - The sort order ('asc' or 'desc').
  * @returns {Promise<Object>} A promise that resolves to the product data in JSON format.
  * @throws {Error} If the request fails or the response is not OK.
  */
-export async function getProducts({ page = 1, limit = 20, search = '', category = '', sort = '' }) {
+export async function getProducts({ page = 1, limit = 20, search = '', category = '', sortBy = '', sortOrder = '' }) {
     // Construct query parameters
     const params = new URLSearchParams({
-        limit: limit.toString(),
-        skip: ((page - 1) * limit).toString(),
-        q: search,
+        page: page.toString(),
+        pageSize: limit.toString(),
+        search,
         category,
+        sortBy,
+        sortOrder,
     });
-
-    // Apply sorting if provided
-    if (sort === 'price_asc') {
-        params.append('sort', 'price');
-        params.append('order', 'asc');
-    } else if (sort === 'price_desc') {
-        params.append('sort', 'price');
-        params.append('order', 'desc');
-    }
 
     // Fetch the product data
-    const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`, {
-        next: { revalidate: 60 }, // Cache for 60 seconds
-    });
+    const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`);
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
@@ -53,9 +45,7 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
  */
 export async function getProductById(id) {
     // Fetch the product by its ID
-    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-        next: { revalidate: 3600 }, // Cache for 1 hour
-    });
+    const response = await fetch(`${API_BASE_URL}/products/${id}`);
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
@@ -74,9 +64,7 @@ export async function getProductById(id) {
  */
 export async function getCategories() {
     // Fetch the categories data
-    const response = await fetch(`${API_BASE_URL}/categories`, {
-        next: { revalidate: 86400 }, // Cache for 24 hours
-    });
+    const response = await fetch(`${API_BASE_URL}/categories`);
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
