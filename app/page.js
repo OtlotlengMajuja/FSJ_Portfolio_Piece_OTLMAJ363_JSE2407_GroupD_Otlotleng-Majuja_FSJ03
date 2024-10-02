@@ -165,7 +165,7 @@ export default function Home() {
       </div>
 
       {/* Render the product grid and pagination controls */}
-      <ProductGrid products={products} />
+      <ProductGrid products={products || []} />
       <Pagination
         currentPage={page}
         hasMore={products.length === limit}

@@ -10,6 +10,11 @@ import ProductCard from './ProductCard';
  * @returns {JSX.Element} A grid layout displaying the list of products.
  */
 export default function ProductGrid({ products }) {
+    // Check if products is an array and has items
+    if (!Array.isArray(products) || products.length === 0) {
+        return <div>No products available.</div>;
+    }
+
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {/* Map over the products array and render a ProductCard for each product */}
