@@ -13,14 +13,21 @@ export async function GET(request) {
     const sortOrder = searchParams.get('sortOrder') || 'asc';
 
     try {
-        let productsQuery = query(collection(db, 'products'));
+        let productsQuery = collection(db, 'products');
 
+        // Apply category filter
         if (category) {
             productsQuery = query(productsQuery, where('category', '==', category));
         }
 
+        // Apply sorting
         productsQuery = query(productsQuery, orderBy(sortBy, sortOrder));
-        productsQuery = query(productsQuery, limit(pageSize * page));
+
+        // Apply pagination
+        const startAtDoc = page > 1 ? await getStartAtDoc(productsQuery, page, pageSize) : null;
+        productsQuery = startAtDoc
+            ? query(productsQuery, startAfter(startAtDoc), limit(pageSize))
+            : query(productsQuery, limit(pageSize));
 
         const snapshot = await getDocs(productsQuery);
         let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -34,22 +41,24 @@ export async function GET(request) {
             products = fuse.search(search).map(result => result.item);
         }
 
-        // Pagination
-        const startIndex = (page - 1) * pageSize;
-        const paginatedProducts = products.slice(startIndex, startIndex + pageSize);
-
         return new Response(JSON.stringify({
-            products: paginatedProducts,
-            totalProducts: products.length,
+            products,
             currentPage: page,
-            totalPages: Math.ceil(products.length / pageSize),
+            pageSize,
+            hasMore: products.length === pageSize,
         }), {
             headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
+        console.error('Failed to fetch products:', error);
         return new Response(JSON.stringify({ error: 'Failed to fetch products' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });
     }
+}
+
+async function getStartAtDoc(query, page, pageSize) {
+    const startAtSnapshot = await getDocs(query, limit((page - 1) * pageSize));
+    return startAtSnapshot.docs[startAtSnapshot.docs.length - 1];
 }
