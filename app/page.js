@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
@@ -60,7 +60,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchProducts(search);
-  }, [fetchProducts, page, category, sort]);
+  }, [fetchProducts, page, category, sort, search]);
 
   /**
    * Fetches categories for filtering products and updates the state.
