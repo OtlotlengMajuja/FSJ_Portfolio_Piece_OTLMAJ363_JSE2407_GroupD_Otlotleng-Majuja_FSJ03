@@ -9,6 +9,7 @@ import SearchBar from './components/SearchBar';
 import { FilterByCategory, SortOptions, ResetFilters } from './components/FilterSort';
 import Error from './error';
 import Loading from './loading';
+import debounce from 'lodash.debounce';
 
 /**
  * Home component that fetches and displays a list of products.
@@ -35,29 +36,31 @@ export default function Home() {
 
   const limit = 20; // Number of products to display per page
 
-  /**
-   * Fetches products based on the current filter settings and updates the state.
-   *
-   * @async
-   * @function fetchProducts
-   */
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async (searchTerm) => {
     setLoading(true);
     try {
-      const data = await getProducts({ page, limit, search, category, sort });
-      setProducts(data);
+      const data = await getProducts({ page, limit, search: searchTerm, category, sort });
+      setProducts(data.products);
       setError(null);
     } catch (err) {
-      setError(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, category, sort]);
 
-  // Fetch products whenever filters or pagination changes
+  const debouncedFetchProducts = useCallback(
+    debounce((searchTerm) => fetchProducts(searchTerm), 300),
+    [fetchProducts]
+  );
+
   useEffect(() => {
-    fetchProducts();
-  }, [page, search, category, sort]);
+    debouncedFetchProducts(search);
+  }, [debouncedFetchProducts, search]);
+
+  useEffect(() => {
+    fetchProducts(search);
+  }, [fetchProducts, page, category, sort]);
 
   /**
    * Fetches categories for filtering products and updates the state.
@@ -78,7 +81,14 @@ export default function Home() {
     fetchCategories();
   }, []);
 
-  // Update the URL based on current filter settings
+  const updateURL = useCallback(
+    debounce((newParams) => {
+      const params = new URLSearchParams(newParams);
+      router.push(`/?${params.toString()}`, { scroll: false });
+    }, 500),
+    [router]
+  );
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (page !== 1) params.set('page', page.toString());
@@ -86,8 +96,8 @@ export default function Home() {
     if (category) params.set('category', category);
     if (sort) params.set('sort', sort);
 
-    router.push(`/?${params.toString()}`, { scroll: false });
-  }, [page, search, category, sort, router]);
+    updateURL(params);
+  }, [page, search, category, sort, updateURL]);
 
   /**
    * Handles search input change.
