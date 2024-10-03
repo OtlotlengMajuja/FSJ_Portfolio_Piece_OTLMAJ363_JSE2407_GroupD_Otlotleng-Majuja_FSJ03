@@ -1,4 +1,4 @@
-// const API_BASE_URL = '/api'; // This assumes your API routes are under /api
+//const API_BASE_URL = '/api'; // This assumes your API routes are under /api
 
 /**
  * Fetches a list of products from the e-commerce API.
@@ -25,7 +25,7 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
     });
 
     // Fetch the product data
-    const response = await fetch(`api/products?${params}`);
+    const response = await fetch(`api/products?${params}`); // (`${API_BASE_URL}/products?${params.toString()}`)
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
@@ -45,7 +45,7 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
  */
 export async function getProductById(id) {
     // Fetch the product by its ID
-    const response = await fetch(`${API_BASE_URL}/products/${id}`);
+    const response = await fetch(`api/products/${id}`);
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
@@ -64,7 +64,7 @@ export async function getProductById(id) {
  */
 export async function getCategories() {
     // Fetch the categories data
-    const response = await fetch(`${API_BASE_URL}/categories`);
+    const response = await fetch(`api/categories`);
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {

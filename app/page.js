@@ -9,7 +9,7 @@ import SearchBar from './components/SearchBar';
 import { FilterByCategory, SortOptions, ResetFilters } from './components/FilterSort';
 import Error from './error';
 import Loading from './loading';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 
 /**
  * Home component that fetches and displays a list of products.
