@@ -75,7 +75,7 @@ export default function ProductCard({ product }) {
                         alt={product.title}
                         width={250}
                         height={250}
-                        objectFit="cover"
+                        style={{ objectFit: 'contain' }}
                     />
                     {/* Image navigation buttons */}
                     {product.images.length > 1 && (

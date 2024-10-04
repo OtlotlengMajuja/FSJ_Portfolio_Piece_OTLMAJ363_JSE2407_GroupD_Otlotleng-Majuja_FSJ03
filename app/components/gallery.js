@@ -51,7 +51,7 @@ export default function ImageGallery({ images }) {
                     src={images[currentImage]}
                     alt={`Product image ${currentImage + 1}`}
                     layout="fill"
-                    objectFit="contain"
+                    style={{ objectFit: 'contain' }}
                     className="rounded-lg"
                 />
                 {images.length > 1 && (
@@ -102,7 +102,7 @@ export default function ImageGallery({ images }) {
                                 src={image}
                                 alt={`Thumbnail ${index + 1}`}
                                 layout="fill"
-                                objectFit="cover"
+                                style={{ objectFit: 'contain' }}
                                 className="rounded-md"
                             />
                         </div>
