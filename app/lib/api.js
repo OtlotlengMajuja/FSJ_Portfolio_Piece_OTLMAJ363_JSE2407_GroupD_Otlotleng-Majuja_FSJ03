@@ -18,6 +18,7 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
     const params = new URLSearchParams({
         page: page.toString(),
         pageSize: limit.toString(),
+        skip: ((page - 1) * limit).toString(),
         search,
         category,
         sortBy,
