@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
@@ -9,7 +9,6 @@ import SearchBar from './components/SearchBar';
 import { FilterByCategory, SortOptions, ResetFilters } from './components/FilterSort';
 import Error from './error';
 import Loading from './loading';
-import { debounce } from 'lodash';
 
 /**
  * Home component that fetches and displays a list of products.
@@ -36,31 +35,29 @@ export default function Home() {
 
   const limit = 20; // Number of products to display per page
 
-  const fetchProducts = useCallback(async (searchTerm) => {
+  /**
+   * Fetches products based on the current filter settings and updates the state.
+   *
+   * @async
+   * @function fetchProducts
+   */
+  const fetchProducts = async () => {
     setLoading(true);
     try {
-      const data = await getProducts({ page, limit, search: searchTerm, category, sort });
-      setProducts(data.products);
+      const data = await getProducts({ page, limit, search, category, sort });
+      setProducts(data);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
-  }, [page, category, sort]);
+  };
 
-  const debouncedFetchProducts = useCallback(
-    debounce((searchTerm) => fetchProducts(searchTerm), 300),
-    [fetchProducts]
-  );
-
+  // Fetch products whenever filters or pagination changes
   useEffect(() => {
-    debouncedFetchProducts(search);
-  }, [debouncedFetchProducts, search]);
-
-  useEffect(() => {
-    fetchProducts(search);
-  }, [fetchProducts, page, category, sort, search]);
+    fetchProducts();
+  }, [page, search, category, sort]);
 
   /**
    * Fetches categories for filtering products and updates the state.
@@ -81,14 +78,7 @@ export default function Home() {
     fetchCategories();
   }, []);
 
-  const updateURL = useCallback(
-    debounce((newParams) => {
-      const params = new URLSearchParams(newParams);
-      router.push(`/?${params.toString()}`, { scroll: false });
-    }, 500),
-    [router]
-  );
-
+  // Update the URL based on current filter settings
   useEffect(() => {
     const params = new URLSearchParams();
     if (page !== 1) params.set('page', page.toString());
@@ -96,8 +86,8 @@ export default function Home() {
     if (category) params.set('category', category);
     if (sort) params.set('sort', sort);
 
-    updateURL(params);
-  }, [page, search, category, sort, updateURL]);
+    router.push(`/?${params.toString()}`, { scroll: false });
+  }, [page, search, category, sort, router]);
 
   /**
    * Handles search input change.
@@ -175,7 +165,7 @@ export default function Home() {
       </div>
 
       {/* Render the product grid and pagination controls */}
-      <ProductGrid products={products || []} />
+      <ProductGrid products={products} />
       <Pagination
         currentPage={page}
         hasMore={products.length === limit}
