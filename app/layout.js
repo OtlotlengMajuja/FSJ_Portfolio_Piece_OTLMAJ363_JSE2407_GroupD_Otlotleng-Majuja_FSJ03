@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
       <head>
         {/* Preconnects to Google Fonts to improve font loading performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Loads custom fonts from Google Fonts */}
         <link href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Handjet:wght@100..900&display=swap" rel="stylesheet" />
         <script
