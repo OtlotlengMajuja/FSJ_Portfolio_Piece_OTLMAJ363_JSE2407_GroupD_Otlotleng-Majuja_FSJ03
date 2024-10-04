@@ -51,7 +51,7 @@ export async function GET(request) {
         // If there's a search term, use Fuse.js to filter the products
         if (searchTerm) {
             const fuse = new Fuse(products, {
-                keys: ['title'],
+                keys: ['title', 'description'],
                 threshold: 0.3
             });
             products = fuse.search(searchTerm).map(result => result.item);
