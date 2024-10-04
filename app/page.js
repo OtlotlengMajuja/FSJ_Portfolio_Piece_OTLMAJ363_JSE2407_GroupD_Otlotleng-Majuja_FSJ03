@@ -20,19 +20,29 @@ import { debounce } from 'lodash';
  *
  * @returns {JSX.Element} The main content of the home page including product grid, filters, and pagination.
  */
-export default function Home() {
+export default function Home({
+  initialProducts,
+  initialCategories,
+  initialPage,
+  initialSearch,
+  initialCategory,
+  initialSort,
+  error: initialError
+}) {
   const router = useRouter();
   const searchParams = useSearchParams(); // Use the hook to get URL search parameters
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState(initialProducts || []);
+  const [loading, setLoading] = useState(!initialProducts);
+  const [error, setError] = useState(initialError);
+  const [categories, setCategories] = useState(initialCategories || []);
 
-  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [category, setCategory] = useState(searchParams.get('category') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || '');
+  const [page, setPage] = useState(initialPage || 1);
+  const [search, setSearch] = useState(initialSearch || '');
+  const [category, setCategory] = useState(initialCategory || '');
+  const [sort, setSort] = useState(initialSort || '');
+
+  const [totalPages, setTotalPages] = useState(1);
 
   const limit = 20; // Number of products to display per page
 
@@ -41,6 +51,7 @@ export default function Home() {
     try {
       const data = await getProducts({ page, limit, search: searchTerm, category, sort });
       setProducts(data.products);
+      setTotalPages(data.totalPages);
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -78,8 +89,10 @@ export default function Home() {
       }
     }
 
-    fetchCategories();
-  }, []);
+    if (!initialCategories) {
+      fetchCategories();
+    }
+  }, [initialCategories]);
 
   const updateURL = useCallback(
     debounce((newParams) => {
