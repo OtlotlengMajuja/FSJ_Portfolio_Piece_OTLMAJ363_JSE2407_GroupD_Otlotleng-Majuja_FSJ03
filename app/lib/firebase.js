@@ -10,7 +10,7 @@ const firebaseConfig = {
     appId: process.env.FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 const db = getFirestore(app);
 
