@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://next-ecommerce-api.vercel.app';
+// const API_BASE_URL = 'https://next-ecommerce-api.vercel.app';
 
 /**
  * Fetches a list of products from the e-commerce API.
@@ -12,7 +12,7 @@ const API_BASE_URL = 'https://next-ecommerce-api.vercel.app';
  * @returns {Promise<Object>} A promise that resolves to the product data in JSON format.
  * @throws {Error} If the request fails or the response is not OK.
  */
-export async function getProducts({ page = 1, limit = 20, search = '', category = '', sort = '' }) {
+export async function getProducts({ page = 1, limit = 20, search = '', category = '', sort = '', lastProductId = null, lastPrice = null }) {
     // Construct query parameters
     const params = new URLSearchParams({
         limit: limit.toString(),
@@ -30,8 +30,12 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
         params.append('order', 'desc');
     }
 
+    // Include pagination parameters if available
+    if (lastProductId) params.append('lastProductId', lastProductId);
+    if (lastPrice !== null) params.append('lastPrice', lastPrice.toString());
+
     // Fetch the product data
-    const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`, {
+    const response = await fetch(`/api/products?${params.toString()}`, {
         next: { revalidate: 60 }, // Cache for 60 seconds
     });
 
@@ -53,7 +57,7 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
  */
 export async function getProductById(id) {
     // Fetch the product by its ID
-    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+    const response = await fetch(`/api/products/${id}`, {
         next: { revalidate: 3600 }, // Cache for 1 hour
     });
 
@@ -74,7 +78,7 @@ export async function getProductById(id) {
  */
 export async function getCategories() {
     // Fetch the categories data
-    const response = await fetch(`${API_BASE_URL}/categories`, {
+    const response = await fetch(`/api/categories`, {
         next: { revalidate: 86400 }, // Cache for 24 hours
     });
 

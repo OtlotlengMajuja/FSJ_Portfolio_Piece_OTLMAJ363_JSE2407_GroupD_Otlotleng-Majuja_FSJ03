@@ -1,26 +1,49 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
-import { collection, query, orderBy, limit, startAfter, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, limit, startAfter, getDocs, where } from 'firebase/firestore';
 import Fuse from 'fuse.js';
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const pageSize = parseInt(searchParams.get('pageSize')) || 20;
     const lastProductId = searchParams.get('lastProductId') || null;
+    const lastPrice = parseFloat(searchParams.get('lastPrice')) || null;
     const searchTerm = searchParams.get('search') || '';
+    const category = searchParams.get('category') || '';
+    const sort = searchParams.get('sort') || 'id';
 
     try {
-        let productsQuery = query(collection(db, 'products'), orderBy('id'), limit(pageSize * 2));
+        let productsQuery = collection(db, 'products');
 
-        if (lastProductId) {
-            const lastProductDoc = await getDocs(query(collection(db, 'products'), where('id', '==', lastProductId)));
-            if (!lastProductDoc.empty) {
-                productsQuery = query(productsQuery, startAfter(lastProductDoc.docs[0]));
+        // Apply category filter if provided
+        if (category) {
+            productsQuery = query(productsQuery, where('category', '==', category));
+        }
+
+        // Apply sorting
+        if (sort === 'price_asc') {
+            productsQuery = query(productsQuery, orderBy('price', 'asc'), orderBy('id'));
+        } else if (sort === 'price_desc') {
+            productsQuery = query(productsQuery, orderBy('price', 'desc'), orderBy('id'));
+        } else {
+            productsQuery = query(productsQuery, orderBy('id'));
+        }
+
+        // Apply pagination
+        if (lastProductId && lastPrice !== null) {
+            if (sort === 'price_asc') {
+                productsQuery = query(productsQuery, startAfter(lastPrice, lastProductId));
+            } else if (sort === 'price_desc') {
+                productsQuery = query(productsQuery, startAfter(lastPrice, lastProductId));
+            } else {
+                productsQuery = query(productsQuery, startAfter(lastProductId));
             }
         }
 
+        productsQuery = query(productsQuery, limit(pageSize * 2)); // Fetch more to allow for filtering  
+
         const productsSnapshot = await getDocs(productsQuery);
-        const products = productsSnapshot.docs.map(doc => ({
+        let products = productsSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
@@ -37,9 +60,12 @@ export async function GET(request) {
         // Trim the results to the requested page size
         products = products.slice(0, pageSize);
 
+        const lastProduct = products.length > 0 ? products[products.length - 1] : null;
+
         return NextResponse.json({
             products,
-            lastProductId: products.length > 0 ? products[products.length - 1].id : null,
+            lastProductId: lastProduct ? lastProduct.id : null,
+            lastPrice: lastProduct ? lastProduct.price : null,
             hasMore: products.length === pageSize
         });
     } catch (error) {
