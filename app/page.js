@@ -46,10 +46,10 @@ export default function Home({
 
   const limit = 20; // Number of products to display per page
 
-  const fetchProducts = useCallback(async (searchTerm) => {
+  const fetchProducts = useCallback(async (searchTerm, pageNum) => {
     setLoading(true);
     try {
-      const data = await getProducts({ page, limit, search: searchTerm, category, sort });
+      const data = await getProducts({ page: pageNum, limit, search: searchTerm, category, sort });
       setProducts(data.products);
       setTotalPages(data.totalPages);
       setError(null);
@@ -58,16 +58,16 @@ export default function Home({
     } finally {
       setLoading(false);
     }
-  }, [page, category, sort]);
+  }, [category, sort]);
 
   const debouncedFetchProducts = useCallback(
-    debounce((searchTerm) => fetchProducts(searchTerm), 300),
+    debounce((searchTerm, pageNum) => fetchProducts(searchTerm, pageNum), 300),
     [fetchProducts]
   );
 
   useEffect(() => {
-    debouncedFetchProducts(search);
-  }, [debouncedFetchProducts, search]);
+    debouncedFetchProducts(search, page);
+  }, [debouncedFetchProducts, search, page, category, sort]);
 
   useEffect(() => {
     fetchProducts(search);
@@ -142,6 +142,11 @@ export default function Home({
     setPage(1);
   };
 
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo(0, 0);
+  };
+
   /**
    * Resets all filters and pagination to their default states.
    */
@@ -155,7 +160,7 @@ export default function Home({
   const hasFilters = search || category || sort;
 
   if (error) {
-    return <Error error={error} reset={fetchProducts} />;
+    return <Error error={error} reset={fetchProducts(search, page)} />;
   }
 
   if (loading) {
@@ -191,8 +196,9 @@ export default function Home({
       <ProductGrid products={products || []} />
       <Pagination
         currentPage={page}
+        totalPages={totalPages}
         hasMore={products.length === limit}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );

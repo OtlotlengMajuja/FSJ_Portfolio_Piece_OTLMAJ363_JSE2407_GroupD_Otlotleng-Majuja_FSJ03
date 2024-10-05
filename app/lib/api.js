@@ -6,27 +6,35 @@
  * @param {Object} params - The parameters for fetching products.
  * @param {number} [params.page=1] - The page number to fetch. Defaults to 1.
  * @param {number} [params.limit=20] - The number of products to fetch per page. Defaults to 20.
- * @param {string} [params.search=''] - The search query to filter products by name or description.
- * @param {string} [params.category=''] - The category to filter products.
- * @param {string} [params.sortBy=''] - The field to sort by (e.g., 'price', 'title').
- * @param {string} [params.sortOrder=''] - The sort order ('asc' or 'desc').
+ * @param {string} [params.search] - The search query to filter products by name or description.
+ * @param {string} [params.category] - The category to filter products.
+ * @param {string} [params.sortBy='id'] - The field to sort by (e.g., 'price', 'title').
+ * @param {string} [params.order='asc'] - The sort order ('asc' or 'desc').
  * @returns {Promise<Object>} A promise that resolves to the product data in JSON format.
  * @throws {Error} If the request fails or the response is not OK.
  */
-export async function getProducts({ page = 1, limit = 20, search = '', category = '', sortBy = '', sortOrder = '' }) {
+export async function getProducts({ page = 1, limit = 20, search, category, sortBy = 'id', order = 'asc' }) {
     // Construct query parameters
     const params = new URLSearchParams({
         page: page.toString(),
-        pageSize: limit.toString(),
-        skip: ((page - 1) * limit).toString(),
-        search,
+        limit: limit.toString(),
         category,
         sortBy,
-        sortOrder,
+        order,
     });
 
+    if (category) {
+        params.append('category', category);
+    }
+
+    if (search) {
+        params.append('search', search);
+    }
+
     // Fetch the product data
-    const response = await fetch(`api/products?${params}`); // (`${API_BASE_URL}/products?${params.toString()}`)
+    const response = await fetch(`/api/products?${params}`, {
+        next: { revalidate: 60 },
+    });
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
@@ -46,7 +54,9 @@ export async function getProducts({ page = 1, limit = 20, search = '', category 
  */
 export async function getProductById(id) {
     // Fetch the product by its ID
-    const response = await fetch(`api/products/${id}`);
+    const response = await fetch(`/api/products/${id}`, {
+        next: { revalidate: 300 },
+    });
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {
@@ -65,7 +75,9 @@ export async function getProductById(id) {
  */
 export async function getCategories() {
     // Fetch the categories data
-    const response = await fetch(`api/categories`);
+    const response = await fetch(`/api/categories`, {
+        next: { revalidate: 3600 },
+    });
 
     // Check if the response is successful, throw an error if not
     if (!response.ok) {

@@ -1,35 +1,51 @@
 // create API endpoints
+import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
 import { collection, query, getDocs, orderBy, limit, startAfter, where } from 'firebase/firestore';
 import Fuse from 'fuse.js';
 
-export async function GET(request) {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page')) || 1;
-    const pageSize = parseInt(searchParams.get('pageSize')) || 10;
-    const search = searchParams.get('search') || '';
-    const category = searchParams.get('category') || '';
-    const sortBy = searchParams.get('sortBy') || 'price';
-    const sortOrder = searchParams.get('sortOrder') || 'asc';
+async function getStartAtDoc(productsQuery, constraints, page, pageSize) {
+    if (page <= 1) return null;
+    const previousPageQuery = query(
+        productsQuery,
+        ...constraints.filter(c => c.type !== 'limit'),
+        limit((page - 1) * pageSize)
+    );
+    const snap = await getDocs(previousPageQuery);
+    return snap.docs[snap.docs.length - 1];
+}
 
+export async function GET(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page')) || 1;
+        const pageSize = parseInt(searchParams.get('pageSize')) || 20;
+        const search = searchParams.get('search') || '';
+        const category = searchParams.get('category') || '';
+        const sortBy = searchParams.get('sortBy') || 'price';
+        const order = searchParams.get('order') || 'asc';
+
         let productsQuery = collection(db, 'products');
+        let constraints = [];
 
         // Apply category filter
         if (category) {
-            productsQuery = query(productsQuery, where('category', '==', category));
+            constraints.push(where('category', '==', category));
         }
 
-        // Apply sorting
-        productsQuery = query(productsQuery, orderBy(sortBy, sortOrder));
+        constraints.push(orderBy(sortBy, order));
+        constraints.push(limit(pageSize));
 
-        // Apply pagination
-        const startAtDoc = page > 1 ? await getStartAtDoc(productsQuery, page, pageSize) : null;
-        productsQuery = startAtDoc
-            ? query(productsQuery, startAfter(startAtDoc), limit(pageSize))
-            : query(productsQuery, limit(pageSize));
+        if (page > 1) {
+            const lastDoc = await getStartAtDoc(productsQuery, constraints, page, pageSize);
+            if (lastDoc) {
+                constraints.push(startAfter(lastDoc));
+            }
+        }
 
-        const snapshot = await getDocs(productsQuery);
+        const finalQuery = query(productsQuery, ...constraints);
+        const snapshot = await getDocs(finalQuery);
+
         let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         // Search functionality using Fuse.js
@@ -41,24 +57,13 @@ export async function GET(request) {
             products = fuse.search(search).map(result => result.item);
         }
 
-        return new Response(JSON.stringify({
+        return NextResponse.json({
             products,
-            currentPage: page,
+            page,
             pageSize,
             hasMore: products.length === pageSize,
-        }), {
-            headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
-        console.error('Failed to fetch products:', error);
-        return new Response(JSON.stringify({ error: 'Failed to fetch products' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
-}
-
-async function getStartAtDoc(query, page, pageSize) {
-    const startAtSnapshot = await getDocs(query, limit((page - 1) * pageSize));
-    return startAtSnapshot.docs[startAtSnapshot.docs.length - 1];
 }
