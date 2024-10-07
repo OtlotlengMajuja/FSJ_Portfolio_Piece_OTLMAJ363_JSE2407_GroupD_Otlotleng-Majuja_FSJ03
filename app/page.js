@@ -6,7 +6,9 @@ import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
 import Pagination from './components/Pagination';
 import SearchBar from './components/SearchBar';
-import { FilterByCategory, SortOptions, ResetFilters } from './components/FilterSort';
+import { FilterByCategory } from './components/CategoryFilter';
+import { SortOptions } from './components/SortOptions';
+import { ResetFilters } from './components/FilterReset';
 import Error from './error';
 import Loading from './loading';
 import { debounce } from 'lodash';
@@ -46,10 +48,10 @@ export default function Home({
 
   const limit = 20; // Number of products to display per page
 
-  const fetchProducts = useCallback(async (searchTerm, pageNum) => {
+  const fetchProducts = useCallback(async (searchTerm, pageNum, cat, sortOption) => {
     setLoading(true);
     try {
-      const data = await getProducts({ page: pageNum, limit, search: searchTerm, category, sort });
+      const data = await getProducts({ page: pageNum, limit, search: searchTerm, category: cat, sort: sortOption });
       setProducts(data.products);
       setTotalPages(data.totalPages);
       setError(null);
@@ -58,20 +60,16 @@ export default function Home({
     } finally {
       setLoading(false);
     }
-  }, [category, sort]);
+  }, []);
 
   const debouncedFetchProducts = useCallback(
-    debounce((searchTerm, pageNum) => fetchProducts(searchTerm, pageNum), 300),
+    debounce((searchTerm, pageNum, cat, sortOption) => fetchProducts(searchTerm, pageNum, cat, sortOption), 300),
     [fetchProducts]
   );
 
   useEffect(() => {
-    debouncedFetchProducts(search, page);
+    debouncedFetchProducts(search, page, category, sort);
   }, [debouncedFetchProducts, search, page, category, sort]);
-
-  useEffect(() => {
-    fetchProducts(search);
-  }, [fetchProducts, page, category, sort, search]);
 
   /**
    * Fetches categories for filtering products and updates the state.
@@ -94,20 +92,19 @@ export default function Home({
     }
   }, [initialCategories]);
 
-  const updateURL = useCallback(
-    debounce((newParams) => {
-      const params = new URLSearchParams(newParams);
-      router.push(`/?${params.toString()}`, { scroll: false });
-    }, 500),
+  const updateURL = useCallback((newParams) => {
+    const params = new URLSearchParams(newParams);
+    router.push(`/?${params.toString()}`, { scroll: false });
+  },
     [router]
   );
 
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (page !== 1) params.set('page', page.toString());
-    if (search) params.set('search', search);
-    if (category) params.set('category', category);
-    if (sort) params.set('sort', sort);
+    const params = {};
+    if (page !== 1) params.page = page.toString();
+    if (search) params.search = search;
+    if (category) params.category = category;
+    if (sort) params.sort = sort;
 
     updateURL(params);
   }, [page, search, category, sort, updateURL]);
@@ -117,50 +114,50 @@ export default function Home({
    *
    * @param {string} newSearch - The new search query.
    */
-  const handleSearchChange = (newSearch) => {
+  const handleSearchChange = useCallback((newSearch) => {
     setSearch(newSearch);
     setPage(1);
-  };
+  }, []);
 
   /**
    * Handles category selection change.
    *
    * @param {string} newCategory - The new selected category.
    */
-  const handleCategoryChange = (newCategory) => {
+  const handleCategoryChange = useCallback((newCategory) => {
     setCategory(newCategory);
     setPage(1);
-  };
+  }, []);
 
   /**
    * Handles sort option change.
    *
    * @param {string} newSort - The new sort option.
    */
-  const handleSortChange = (newSort) => {
+  const handleSortChange = useCallback((newSort) => {
     setSort(newSort);
     setPage(1);
-  };
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
-    window.scrollTo(0, 0);
-  };
+  }, []);
 
   /**
    * Resets all filters and pagination to their default states.
    */
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setSearch('');
     setCategory('');
     setSort('');
     setPage(1);
-  };
+  }, []);
+
+  const handlePageChange = useCallback((newPage) => {
+    setPage(newPage);
+    window.scrollTo(0, 0);
+  }, []);
 
   const hasFilters = search || category || sort;
 
   if (error) {
-    return <Error error={error} reset={fetchProducts(search, page)} />;
+    return <Error error={error} reset={() => fetchProducts(search, page)} />;
   }
 
   if (loading) {
