@@ -4,9 +4,10 @@ import { doc, getDoc } from 'firebase/firestore';
 
 export async function GET(request, { params }) {
     const { id } = params;
-
+    // Pad the product's ID with leading zeros (assuming max 3 digits)
+    const paddedId = id.toString().padStart(3, "0");
     try {
-        const productDoc = await getDoc(doc(db, 'products', id));
+        const productDoc = await getDoc(doc(db, 'products', paddedId));
 
         if (!productDoc.exists()) {
             return new Response(JSON.stringify({ error: 'Product not found' }), {

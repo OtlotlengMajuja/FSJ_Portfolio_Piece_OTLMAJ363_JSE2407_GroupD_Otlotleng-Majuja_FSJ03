@@ -54,7 +54,7 @@ export async function getProducts({ page = 1, limit = 20, search, category, sort
  */
 export async function getProductById(id) {
     // Fetch the product by its ID
-    const response = await fetch(`/api/products/${id}`, {
+    const response = await fetch(`https://curated-finds-boutique.vercel.app/api/products/${id}`, {
         next: { revalidate: 300 },
     });
 
