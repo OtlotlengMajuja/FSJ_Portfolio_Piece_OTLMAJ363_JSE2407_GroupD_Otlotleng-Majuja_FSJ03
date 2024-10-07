@@ -1,12 +1,25 @@
 import "./globals.css";
 import Header from './components/header';
 import { Inter } from 'next/font/google';
+import { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: "Shopporium",
+  title: {
+    default: "Curated Finds Boutique",
+    template: "%s | Curated Finds Boutique"
+  },
   description: "A one-stop shop for all your needs. We've got you covered",
+  keywords: ["e-commerce", "boutique", "online shopping", "curated finds"],
+  authors: [{ name: "Otlotleng Majuja" }],
+  creator: "Curated Finds Boutique",
+  publisher: "Curated Finds Boutique",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
 };
 
 /**
@@ -23,9 +36,25 @@ export default function RootLayout({ children }) {
       <head>
         {/* Preconnects to Google Fonts to improve font loading performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Loads custom fonts from Google Fonts */}
         <link href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Handjet:wght@100..900&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Curated Finds Boutique",
+              "url": "https://www.yourwebsite.com",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://www.yourwebsite.com/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
       </head>
       <body className={inter.className}>
         {/* Renders the header component for navigation */}

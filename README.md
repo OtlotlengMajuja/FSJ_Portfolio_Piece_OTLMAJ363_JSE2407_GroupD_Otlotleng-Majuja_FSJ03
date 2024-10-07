@@ -34,7 +34,7 @@ Next.js and React are used in the application's construction, utilizing both cli
 1. **Clone the repository:** Open your terminal and select powershell, then:
 
    - git clone `https://github.com/OtlotlengMajuja/OTLMAJ363_JSE2407_GroupD_Otlotleng-Majuja_FSJ02.git`
-   - cd shopporium
+   - cd Curated Finds Boutique
 
 2. **Install dependencies:** Make sure you have Node.js installed, then run:
 

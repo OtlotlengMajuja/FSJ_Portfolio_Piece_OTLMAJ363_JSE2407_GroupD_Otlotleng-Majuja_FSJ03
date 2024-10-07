@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
@@ -9,6 +9,7 @@ import SearchBar from './components/SearchBar';
 import { FilterByCategory, SortOptions, ResetFilters } from './components/FilterSort';
 import Error from './error';
 import Loading from './loading';
+import { debounce } from 'lodash';
 
 /**
  * Home component that fetches and displays a list of products.
@@ -19,45 +20,58 @@ import Loading from './loading';
  *
  * @returns {JSX.Element} The main content of the home page including product grid, filters, and pagination.
  */
-export default function Home() {
+export default function Home({
+  initialProducts,
+  initialCategories,
+  initialPage,
+  initialSearch,
+  initialCategory,
+  initialSort,
+  error: initialError
+}) {
   const router = useRouter();
   const searchParams = useSearchParams(); // Use the hook to get URL search parameters
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState(initialProducts || []);
+  const [loading, setLoading] = useState(!initialProducts);
+  const [error, setError] = useState(initialError);
+  const [categories, setCategories] = useState(initialCategories || []);
 
-  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [category, setCategory] = useState(searchParams.get('category') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || '');
+  const [page, setPage] = useState(initialPage || 1);
+  const [search, setSearch] = useState(initialSearch || '');
+  const [category, setCategory] = useState(initialCategory || '');
+  const [sort, setSort] = useState(initialSort || '');
+
+  const [totalPages, setTotalPages] = useState(1);
 
   const limit = 20; // Number of products to display per page
 
-  /**
-   * Fetches products based on the current filter settings and updates the state.
-   *
-   * @async
-   * @function fetchProducts
-   */
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async (searchTerm, pageNum) => {
     setLoading(true);
     try {
-      const data = await getProducts({ page, limit, search, category, sort });
-      setProducts(data);
+      const data = await getProducts({ page: pageNum, limit, search: searchTerm, category, sort });
+      setProducts(data.products);
+      setTotalPages(data.totalPages);
       setError(null);
     } catch (err) {
-      setError(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [category, sort]);
 
-  // Fetch products whenever filters or pagination changes
+  const debouncedFetchProducts = useCallback(
+    debounce((searchTerm, pageNum) => fetchProducts(searchTerm, pageNum), 300),
+    [fetchProducts]
+  );
+
   useEffect(() => {
-    fetchProducts();
-  }, [page, search, category, sort]);
+    debouncedFetchProducts(search, page);
+  }, [debouncedFetchProducts, search, page, category, sort]);
+
+  useEffect(() => {
+    fetchProducts(search);
+  }, [fetchProducts, page, category, sort, search]);
 
   /**
    * Fetches categories for filtering products and updates the state.
@@ -75,10 +89,19 @@ export default function Home() {
       }
     }
 
-    fetchCategories();
-  }, []);
+    if (!initialCategories) {
+      fetchCategories();
+    }
+  }, [initialCategories]);
 
-  // Update the URL based on current filter settings
+  const updateURL = useCallback(
+    debounce((newParams) => {
+      const params = new URLSearchParams(newParams);
+      router.push(`/?${params.toString()}`, { scroll: false });
+    }, 500),
+    [router]
+  );
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (page !== 1) params.set('page', page.toString());
@@ -86,8 +109,8 @@ export default function Home() {
     if (category) params.set('category', category);
     if (sort) params.set('sort', sort);
 
-    router.push(`/?${params.toString()}`, { scroll: false });
-  }, [page, search, category, sort, router]);
+    updateURL(params);
+  }, [page, search, category, sort, updateURL]);
 
   /**
    * Handles search input change.
@@ -119,6 +142,11 @@ export default function Home() {
     setPage(1);
   };
 
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo(0, 0);
+  };
+
   /**
    * Resets all filters and pagination to their default states.
    */
@@ -132,7 +160,7 @@ export default function Home() {
   const hasFilters = search || category || sort;
 
   if (error) {
-    return <Error error={error} reset={fetchProducts} />;
+    return <Error error={error} reset={fetchProducts(search, page)} />;
   }
 
   if (loading) {
@@ -165,11 +193,12 @@ export default function Home() {
       </div>
 
       {/* Render the product grid and pagination controls */}
-      <ProductGrid products={products} />
+      <ProductGrid products={products || []} />
       <Pagination
         currentPage={page}
+        totalPages={totalPages}
         hasMore={products.length === limit}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );

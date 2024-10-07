@@ -18,17 +18,34 @@ import { useRouter } from "next/navigation";
 export default function Reviews({ reviews }) {
     const router = useRouter(); // Hook to handle routing
     const [sortOption, setSortOption] = useState(''); // State to track the selected sort option
+    const [sortedReviews, setSortedReviews] = useState(reviews);
 
-    /**
-     * Handles the sorting of reviews based on the selected option.
-     * Updates the URL to reflect the sort option without refreshing the page.
-     *
-     * @param {Event} e - The change event triggered when selecting a sorting option.
-     */
+    useEffect(() => {
+        const sortReviews = () => {
+            const [field, order] = sortOption.split('-');
+            const sorted = [...reviews].sort((a, b) => {
+                if (field === 'date') {
+                    return order === 'asc'
+                        ? new Date(a.date) - new Date(b.date)
+                        : new Date(b.date) - new Date(a.date);
+                } else if (field === 'rating') {
+                    return order === 'asc'
+                        ? a.rating - b.rating
+                        : b.rating - a.rating;
+                }
+                return 0;
+            });
+            setSortedReviews(sorted);
+        };
+
+        if (sortOption) {
+            sortReviews();
+            router.push(`?reviewSort=${sortOption}`, { scroll: false });
+        }
+    }, [sortOption, reviews, router]);
+
     const handleSortChange = (e) => {
-        const newSortOption = e.target.value; // Get the selected value
-        setSortOption(newSortOption); // Update state with the selected sort option
-        router.push(`?reviewSort=${newSortOption}`, { scroll: false }); // Push new sort option to the URL
+        setSortOption(e.target.value);
     };
 
     return (
@@ -42,15 +59,17 @@ export default function Reviews({ reviews }) {
                     className="p-2 border rounded-md text-secondary"
                 >
                     <option value="">Sort by</option>
-                    <option value="date">Most Recent</option>
-                    <option value="rating">Rating</option>
+                    <option value="date-desc">Most Recent</option>
+                    <option value="date-asc">Oldest</option>
+                    <option value="rating-desc">Highest Rating</option>
+                    <option value="rating-asc">Lowest Rating</option>
                 </select>
             </div>
 
             {/* List of reviews */}
             <div className="space-y-6">
                 {/* Map over the reviews array and render each review */}
-                {reviews.map((review, index) => (
+                {sortedReviews.map((review, index) => (
                     <div key={index} className="card rounded-lg shadow-md p-6 transition-transform duration-300 hover:scale-105">
                         {/* Reviewer name and date */}
                         <div className="flex justify-between items-center mb-4">

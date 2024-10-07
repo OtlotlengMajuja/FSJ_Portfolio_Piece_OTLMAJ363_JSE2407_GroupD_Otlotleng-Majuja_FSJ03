@@ -38,16 +38,11 @@ export function FilterByCategory({ categories, selectedCategory, onCategoryChang
  * @param {Function} props.onSortChange - Callback function to handle changes in sorting.
  * @returns {JSX.Element} The rendered dropdown component for sorting options.
  */
-export function SortOptions({ currentSortBy, currentSortOrder, onSortChange }) {
-    const handleSortChange = (e) => {
-        const [sortBy, sortOrder] = e.target.value.split('-');
-        onSortChange(sortBy, sortOrder);
-    };
-
+export function SortOptions({ currentSort, onSortChange }) {
     return (
         <select
-            value={`${currentSortBy}-${currentSortOrder}`}
-            onChange={handleSortChange}
+            value={currentSort}
+            onChange={(e) => onSortChange(e.target.value)}
             className="p-2 border rounded"
         >
             <option value="">Sort by</option>
