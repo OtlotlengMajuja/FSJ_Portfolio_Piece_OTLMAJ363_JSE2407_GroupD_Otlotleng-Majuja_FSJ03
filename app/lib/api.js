@@ -1,4 +1,4 @@
-//const API_BASE_URL = '/api'; // This assumes your API routes are under /api
+//const API_BASE_URL = 'https://curated-finds-boutique.vercel.app/api'; // Base URL for API
 
 /**
  * Fetches a list of products from the e-commerce API.
@@ -14,35 +14,41 @@
  * @throws {Error} If the request fails or the response is not OK.
  */
 export async function getProducts({ page = 1, limit = 20, search, category, sortBy = 'id', order = 'asc' }) {
-    // Construct query parameters
-    const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        category,
-        sortBy,
-        order,
-    });
+    try {
+        // Construct query parameters
+        const params = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            category,
+            sortBy,
+            order,
+        });
 
-    if (category) {
-        params.append('category', category);
+        if (category) {
+            params.append('category', category);
+        }
+
+        if (search) {
+            params.append('search', search);
+        }
+
+        // Fetch the product data
+        const response = await fetch(`/api/products?${params}`, {
+            next: { revalidate: 60 },
+        });
+
+        // Check if the response is successful, throw an error if not
+        if (!response.ok) {
+            throw new Error('Failed to fetch products');
+        }
+
+        // Return the product data in JSON format
+        return response.json();
+
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error; // Optionally rethrow the error for further handling
     }
-
-    if (search) {
-        params.append('search', search);
-    }
-
-    // Fetch the product data
-    const response = await fetch(`/api/products?${params}`, {
-        next: { revalidate: 60 },
-    });
-
-    // Check if the response is successful, throw an error if not
-    if (!response.ok) {
-        throw new Error('Failed to fetch products');
-    }
-
-    // Return the product data in JSON format
-    return response.json();
 }
 
 /**
@@ -53,18 +59,23 @@ export async function getProducts({ page = 1, limit = 20, search, category, sort
  * @throws {Error} If the request fails or the response is not OK.
  */
 export async function getProductById(id) {
-    // Fetch the product by its ID
-    const response = await fetch(`/api/products/${id}`, {
-        next: { revalidate: 300 },
-    });
+    try {
+        // Fetch the product by its ID
+        const response = await fetch(`/api/products/${id}`, {
+            next: { revalidate: 300 },
+        });
 
-    // Check if the response is successful, throw an error if not
-    if (!response.ok) {
-        throw new Error('Failed to fetch product');
+        // Check if the response is successful, throw an error if not
+        if (!response.ok) {
+            throw new Error('Failed to fetch product');
+        }
+
+        // Return the product data in JSON format
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        throw error; // Optionally rethrow the error for further handling
     }
-
-    // Return the product data in JSON format
-    return response.json();
 }
 
 /**
@@ -74,16 +85,21 @@ export async function getProductById(id) {
  * @throws {Error} If the request fails or the response is not OK.
  */
 export async function getCategories() {
-    // Fetch the categories data
-    const response = await fetch(`/api/categories`, {
-        next: { revalidate: 3600 },
-    });
+    try {
+        // Fetch the categories data
+        const response = await fetch(`/api/categories`, {
+            next: { revalidate: 3600 },
+        });
 
-    // Check if the response is successful, throw an error if not
-    if (!response.ok) {
-        throw new Error('Failed to fetch categories');
+        // Check if the response is successful, throw an error if not
+        if (!response.ok) {
+            throw new Error('Failed to fetch categories');
+        }
+
+        // Return the category data in JSON format
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        throw error; // Optionally rethrow the error for further handling
     }
-
-    // Return the category data in JSON format
-    return response.json();
 }
