@@ -1,7 +1,7 @@
 import { auth } from "./firebase";
 
 export const verifyIdToken = async (req, res, next) => {
-    const idToken = req.headers.authorization?.split('Bearer ')[1];
+    const idToken = req.headers.authorization;
 
     if (idToken) {
         return res.status(401).json({ error: 'No token provided' });

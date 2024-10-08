@@ -2,17 +2,22 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { verifyIdToken } from '@/app/lib/authMiddleware';
 
 export async function GET() {
-    return verifyIdToken(request, null, async () => {
-        try {
-            const categoriesSnapshot = await getDocs(collection(db, 'categories', "allCategories"));
-            const categories = categoriesSnapshot.docs.map(doc => doc.data());
+    try {
+        const productsRef = collection(db, 'products');
+        const snapshot = await getDocs(productsRef);
+        const categories = new Set();
 
-            return NextResponse.json(categories);
-        } catch (error) {
-            return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
-        }
-    });
+        snapshot.forEach(doc => {
+            const product = doc.data();
+            if (product.category) {
+                categories.add(product.category);
+            }
+        });
+
+        return NextResponse.json(Array.from(categories));
+    } catch (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }

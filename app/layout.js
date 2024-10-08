@@ -1,8 +1,6 @@
 import "./globals.css";
 import Header from './components/header';
 import { Inter } from 'next/font/google';
-import { Metadata } from 'next';
-import { AuthProvider } from "./providers";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -62,7 +60,7 @@ export default function RootLayout({ children }) {
         <Header />
         {/* Renders the child components or pages passed into the layout */}
         <main className="container mx-auto px-4 py-8">
-          <AuthProvider>{children}</AuthProvider>
+          {children}
         </main>
       </body>
     </html>

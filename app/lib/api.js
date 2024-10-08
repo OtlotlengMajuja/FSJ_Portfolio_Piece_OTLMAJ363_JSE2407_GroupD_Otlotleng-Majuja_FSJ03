@@ -13,13 +13,18 @@
  * @returns {Promise<Object>} A promise that resolves to the product data in JSON format.
  * @throws {Error} If the request fails or the response is not OK.
  */
-export async function getProducts({ page = 1, limit = 20, search, category, sortBy = 'id', order = 'asc' }) {
+export async function getProducts({
+    page = 1,
+    limit = 20,
+    search,
+    category,
+    sortBy = 'id',
+    order = 'asc' }) {
     try {
         // Construct query parameters
         const params = new URLSearchParams({
             page: page.toString(),
             limit: limit.toString(),
-            category,
             sortBy,
             order,
         });
@@ -60,14 +65,16 @@ export async function getProducts({ page = 1, limit = 20, search, category, sort
  */
 export async function getProductById(id) {
     try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
         // Fetch the product by its ID
-        const response = await fetch(`/api/products/${id}`, {
+        const response = await fetch(`${baseUrl}/api/products/${id}`, {
             next: { revalidate: 300 },
         });
 
         // Check if the response is successful, throw an error if not
         if (!response.ok) {
-            throw new Error('Failed to fetch product');
+            throw new Error('Failed to fetch product with ID ${id}');
         }
 
         // Return the product data in JSON format
@@ -87,7 +94,7 @@ export async function getProductById(id) {
 export async function getCategories() {
     try {
         // Fetch the categories data
-        const response = await fetch(`/api/categories`, {
+        const response = await fetch("/api/categories", {
             next: { revalidate: 3600 },
         });
 
