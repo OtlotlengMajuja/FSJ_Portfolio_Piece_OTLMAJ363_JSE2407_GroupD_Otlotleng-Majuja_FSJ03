@@ -10,6 +10,7 @@ import { FilterByCategory } from './components/CategoryFilter';
 import { SortOptions } from './components/SortOptions';
 import { ResetFilters } from './components/FilterReset';
 import { useAuth } from './lib/useAuth';
+import ErrorBoundary from './ErrorBoundary';
 import Error from './error';
 import Loading from './loading';
 import { debounce } from 'lodash';
@@ -178,35 +179,37 @@ export default function Home({
         </h1>
       )}
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
-        <div className="w-full sm:w-auto">
-          <SearchBar initialValue={search} onSearchChange={handleSearchChange} />
-        </div>
-        <div className="w-full sm:w-auto">
-          <FilterByCategory
-            categories={categories}
-            selectedCategory={category}
-            onCategoryChange={handleCategoryChange}
-          />
-        </div>
-        <div className="w-full sm:w-auto">
-          <SortOptions initialValue={sort} onSortChange={handleSortChange} />
-        </div>
-        {hasFilters && (
+      <ErrorBoundary>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
           <div className="w-full sm:w-auto">
-            <ResetFilters onReset={handleResetFilters} />
+            <SearchBar initialValue={search} onSearchChange={handleSearchChange} />
           </div>
-        )}
-      </div>
+          <div className="w-full sm:w-auto">
+            <FilterByCategory
+              categories={categories}
+              selectedCategory={category}
+              onCategoryChange={handleCategoryChange}
+            />
+          </div>
+          <div className="w-full sm:w-auto">
+            <SortOptions initialValue={sort} onSortChange={handleSortChange} />
+          </div>
+          {hasFilters && (
+            <div className="w-full sm:w-auto">
+              <ResetFilters onReset={handleResetFilters} />
+            </div>
+          )}
+        </div>
 
-      {/* Render the product grid and pagination controls */}
-      <ProductGrid products={products || []} />
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        hasMore={products.length === limit}
-        onPageChange={handlePageChange}
-      />
+        {/* Render the product grid and pagination controls */}
+        <ProductGrid products={products || []} />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          hasMore={products.length === limit}
+          onPageChange={handlePageChange}
+        />
+      </ErrorBoundary>
     </div>
   );
 }
