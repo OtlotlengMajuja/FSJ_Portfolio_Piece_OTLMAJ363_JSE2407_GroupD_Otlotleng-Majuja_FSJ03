@@ -14,10 +14,6 @@ export default function ImageGallery({ images }) {
     // State to track the currently displayed image
     const [currentImage, setCurrentImage] = useState(0);
 
-    if (!images || images.length === 0) {
-        return <div className="p-4">No images available</div>;
-    }
-
     /**
      * Move to the next image in the gallery.
      * If on the last image, it loops back to the first image.
@@ -50,8 +46,10 @@ export default function ImageGallery({ images }) {
                 <Image
                     src={images[currentImage]}
                     alt={`Product image ${currentImage + 1}`}
-                    layout="fill"
-                    style={{ objectFit: 'contain' }}
+                    width={800}
+                    height={600}
+                    layout="responsive"
+                    objectFit="cover"
                     className="rounded-lg"
                 />
                 {images.length > 1 && (
@@ -74,41 +72,24 @@ export default function ImageGallery({ images }) {
                         </button>
                     </>
                 )}
-                {/* Image indicators */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {images.map((_, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleImageClick(index)}
-                            className={`w-3 h-3 rounded-full ${index === currentImage ? 'bg-white' : 'bg-gray-400'
-                                }`}
-                            aria-label={`Go to image ${index + 1}`}
-                        />
-                    ))}
-                </div>
+
             </div>
 
             {/* Thumbnails for each image */}
-            {images.length > 1 && (
-                <div className="flex space-x-2 overflow-x-auto">
-                    {images.map((image, index) => (
-                        <div
-                            key={index}
-                            onClick={() => handleImageClick(index)}
-                            className={`h-16 w-16 relative cursor-pointer rounded-md transition-transform duration-300 hover:scale-110 ${currentImage === index ? 'border-2 border-indigo-600' : 'border border-gray-300'
-                                }`}
-                        >
-                            <Image
-                                src={image}
-                                alt={`Thumbnail ${index + 1}`}
-                                layout="fill"
-                                style={{ objectFit: 'contain' }}
-                                className="rounded-md"
-                            />
-                        </div>
-                    ))}
-                </div>
-            )}
+            <div className="flex justify-center mt-4 space-x-2">
+                {images.map((image, index) => (
+                    <Image
+                        key={index}
+                        src={image}
+                        alt={`Thumbnail ${index + 1}`}
+                        width={100}
+                        height={100}
+                        objectFit="cover"
+                        className={`cursor-pointer rounded-md transition-transform duration-300 hover:scale-110 ${currentImage === index ? 'border-2 border-indigo-600' : 'border border-gray-300'}`}
+                        onClick={() => handleImageClick(index)}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link';
+import { useAuth } from '../lib/useAuth';
 
 /**
  * Header component for the e-commerce site.
@@ -8,6 +11,8 @@ import Link from 'next/link';
  * @returns {JSX.Element} The header component containing a logo and navigation links.
  */
 export default function Header() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const user = useAuth();
     return (
         <header className="bg-primary shadow-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -16,8 +21,16 @@ export default function Header() {
                     <span className="font-['Anek_Devanagari'] text-3xl text-white">Curated Finds Boutique</span>
                 </Link>
 
+                {/* Hamburger menu button for mobile */}
+                <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="text-white sm:hidden"
+                >
+                    ☰
+                </button>
+
                 {/* Navigation links */}
-                <nav>
+                <nav className={`${isMenuOpen ? 'block' : 'hidden'} sm:block`}>
                     <ul className="flex space-x-6">
                         {/* Home page link */}
                         <li>
@@ -35,6 +48,12 @@ export default function Header() {
                         <li>
                             <Link href="/cart" className="text-white hover:text-primary-dark transition-colors duration-300">
                                 Cart
+                            </Link>
+                        </li>
+                        {/* Privacy policy link */}
+                        <li>
+                            <Link href="/privacy" className="text-white hover:text-primary-dark transition-colors duration-300">
+                                Privacy Policy
                             </Link>
                         </li>
                     </ul>

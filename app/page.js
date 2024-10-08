@@ -6,9 +6,7 @@ import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
 import Pagination from './components/Pagination';
 import SearchBar from './components/SearchBar';
-import { FilterByCategory } from './components/CategoryFilter';
-import { SortOptions } from './components/SortOptions';
-import { ResetFilters } from './components/FilterReset';
+import FilterSort from './components/FilterSort';
 import { useAuth } from './lib/useAuth';
 import Error from './error';
 import Loading from './loading';
@@ -97,9 +95,7 @@ export default function Home({
   const updateURL = useCallback((newParams) => {
     const params = new URLSearchParams(newParams);
     router.push(`/?${params.toString()}`, { scroll: false });
-  },
-    [router]
-  );
+  }, [router]);
 
   useEffect(() => {
     const params = {};
@@ -156,8 +152,6 @@ export default function Home({
     window.scrollTo(0, 0);
   }, []);
 
-  const hasFilters = search || category || sort;
-
   if (error) {
     return <Error error={error} reset={() => fetchProducts(search, page)} />;
   }
@@ -178,28 +172,18 @@ export default function Home({
         </h1>
       )}
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
-        <div className="w-full sm:w-auto">
-          <SearchBar initialValue={search} onSearchChange={handleSearchChange} />
-        </div>
-        <div className="w-full sm:w-auto">
-          <FilterByCategory
-            categories={categories}
-            selectedCategory={category}
-            onCategoryChange={handleCategoryChange}
-          />
-        </div>
-        <div className="w-full sm:w-auto">
-          <SortOptions initialValue={sort} onSortChange={handleSortChange} />
-        </div>
-        {hasFilters && (
-          <div className="w-full sm:w-auto">
-            <ResetFilters onReset={handleResetFilters} />
-          </div>
-        )}
-      </div>
+      <FilterSort
+        categories={categories}
+        currentCategory={category}
+        currentSortBy={sort.split('-')[0]}
+        currentSortOrder={sort.split('-')[1]}
+        currentSearch={search}
+        onFilter={handleCategoryChange}
+        onSort={(sortBy, sortOrder) => handleSortChange(`${sortBy}-${sortOrder}`)}
+        onSearch={handleSearchChange}
+        onReset={handleResetFilters}
+      />
 
-      {/* Render the product grid and pagination controls */}
       <ProductGrid products={products || []} />
       <Pagination
         currentPage={page}
