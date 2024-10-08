@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useAuth } from '../lib/useAuth';
+import { useState } from 'react';
+
 
 /**
  * Header component for the e-commerce site.

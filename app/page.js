@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
 import Pagination from './components/Pagination';
-import SearchBar from './components/SearchBar';
 import FilterSort from './components/FilterSort';
 import { useAuth } from './lib/useAuth';
 import Error from './error';

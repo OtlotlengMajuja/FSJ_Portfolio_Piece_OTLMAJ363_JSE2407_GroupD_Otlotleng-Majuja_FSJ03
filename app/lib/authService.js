@@ -3,7 +3,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
-    onAuthStateChanged as firebaseAuthStateChanged
+    onAuthStateChanged
 } from "firebase/auth";
 
 export const signUp = async (email, password) => {
@@ -33,5 +33,5 @@ export const signOutUser = async () => {
 };
 
 export const listenToAuthChanges = (callback) => {
-    return firebaseAuthStateChanged(auth, callback)
+    return onAuthStateChanged(auth, callback)
 };
