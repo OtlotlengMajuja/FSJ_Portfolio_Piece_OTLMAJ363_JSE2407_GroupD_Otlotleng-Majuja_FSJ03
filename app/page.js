@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getProducts, getCategories } from './lib/api';
 import ProductGrid from './components/ProductGrid';
@@ -96,15 +96,18 @@ export default function Home({
     router.push(`/?${params.toString()}`, { scroll: false });
   }, [router]);
 
-  useEffect(() => {
-    const params = {};
-    if (page !== 1) params.page = page.toString();
-    if (search) params.search = search;
-    if (category) params.category = category;
-    if (sort) params.sort = sort;
+  const params = useMemo(() => {
+    const newParams = {};
+    if (page !== 1) newParams.page = page.toString();
+    if (search) newParams.search = search;
+    if (category) newParams.category = category;
+    if (sort) newParams.sort = sort;
+    return newParams;
+  }, [page, search, category, sort]);
 
+  useEffect(() => {
     updateURL(params);
-  }, [page, search, category, sort, updateURL]);
+  }, [params, updateURL]);
 
   /**
    * Handles search input change.
