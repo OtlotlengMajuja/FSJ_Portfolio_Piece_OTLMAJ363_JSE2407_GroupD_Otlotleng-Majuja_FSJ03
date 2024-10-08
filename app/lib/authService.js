@@ -18,6 +18,17 @@ export const signUp = async (email, password) => {
 export const signIn = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const idToken = await userCredential.user.getIdToken();
+
+        // Send token to backend to set as an HTTP-only cookie
+        await fetch('/api/session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ idToken }),
+        });
+
         return userCredential.user;
     } catch (error) {
         throw error;
