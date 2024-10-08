@@ -9,6 +9,7 @@ import SearchBar from './components/SearchBar';
 import { FilterByCategory } from './components/CategoryFilter';
 import { SortOptions } from './components/SortOptions';
 import { ResetFilters } from './components/FilterReset';
+import { useAuth } from './lib/useAuth';
 import Error from './error';
 import Loading from './loading';
 import { debounce } from 'lodash';
@@ -31,6 +32,7 @@ export default function Home({
   initialSort,
   error: initialError
 }) {
+  const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams(); // Use the hook to get URL search parameters
 
@@ -166,7 +168,15 @@ export default function Home({
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <h1 className="text-3xl font-bold mb-8 text-center sm:text-left">Explore the best store</h1>
+      {user ? (
+        <h1 className="text-3xl font-bold mb-8 text-center sm:text-left">
+          Welcome, {user.displayName || user.email}!
+        </h1>
+      ) : (
+        <h1 className="text-3xl font-bold mb-8 text-center sm:text-left">
+          Explore the best sstore
+        </h1>
+      )}
 
       <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
         <div className="w-full sm:w-auto">
