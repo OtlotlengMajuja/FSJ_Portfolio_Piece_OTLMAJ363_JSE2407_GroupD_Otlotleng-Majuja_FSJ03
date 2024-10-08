@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { onAuthStateChanged } from "./authService";
+import { listenToAuthChanges } from "./authService";
 
 export const useAuth = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged((user) => {
-            setUser(user);
+        const unsubscribe = listenToAuthChanges((authUser) => {
+            setUser(authUser);
             setLoading(false);
         });
 
