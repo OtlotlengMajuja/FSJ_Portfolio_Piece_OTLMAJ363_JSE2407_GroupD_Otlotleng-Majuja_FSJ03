@@ -36,6 +36,10 @@ export default async function handler(req, res) {
             date: new Date().toISOString(),
         });
 
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+        }
+
         res.status(200).json({ message: 'Review updated successfully' });
     } catch (error) {
         console.error('Error updating review:', error);

@@ -30,6 +30,10 @@ export default async function handler(req, res) {
             reviewerName: user.name || 'Anonymous',
         });
 
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+        }
+
         res.status(200).json({ message: 'Review added successfully', reviewId: reviewRef.id });
     } catch (error) {
         console.error('Error adding review:', error);
