@@ -74,7 +74,7 @@ export default function Header() {
                 </button>
 
                 {/* Auth buttons */}
-                {auth ? (
+                {user ? (
                     <div className="flex items-center space-x-4">
                         <RiUser3Line className="text-white text-2xl" />
                         <button onClick={handleSignOut} className="text-white flex items-center space-x-1 hover:text-primary-dark transition-colors duration-300">

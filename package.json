@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/lodash": "^4.17.10",
     "@types/lodash.debounce": "^4.0.9",
+    "cookie": "^1.0.0",
     "dotenv": "^16.4.5",
     "firebase": "^10.14.0",
     "firebase-admin": "^12.6.0",
