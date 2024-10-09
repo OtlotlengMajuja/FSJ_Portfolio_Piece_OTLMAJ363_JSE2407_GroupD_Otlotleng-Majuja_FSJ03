@@ -2,7 +2,7 @@ import { verifyIdToken } from '@/app/lib/authMiddleware';
 import { db } from '@/app/lib/firebase-admin';
 
 export default async function handler(req, res) {
-    if (req.method !== 'PUT') {
+    if (req.method !== 'DELETE') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
@@ -13,9 +13,9 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const { productId, reviewId, rating, comment } = req.body;
+        const { productId, reviewId } = req.query;
 
-        if (!productId || !reviewId || !rating || !comment) {
+        if (!productId || !reviewId) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
@@ -27,18 +27,14 @@ export default async function handler(req, res) {
         }
 
         if (reviewDoc.data().reviewerEmail !== user.email) {
-            return res.status(403).json({ error: 'You can only edit your own reviews' });
+            return res.status(403).json({ error: 'You can only delete your own reviews' });
         }
 
-        await reviewRef.update({
-            rating: Number(rating),
-            comment,
-            date: new Date().toISOString(),
-        });
+        await reviewRef.delete();
 
-        res.status(200).json({ message: 'Review updated successfully' });
+        res.status(200).json({ message: 'Review deleted successfully' });
     } catch (error) {
-        console.error('Error updating review:', error);
-        res.status(500).json({ error: 'An error occurred while updating the review' });
+        console.error('Error deleting review:', error);
+        res.status(500).json({ error: 'An error occurred while deleting the review' });
     }
 }

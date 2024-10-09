@@ -20,9 +20,22 @@ import Reviews from '@/app/components/reviews';
  * 
  * <ReviewsSection reviews={reviews} />
  */
-export default function ProductReviews({ reviews }) {
+export default function ProductReviews({ reviews, productId }) {
     // State to store the current sort option for the reviews
     const [reviewSort, setReviewSort] = useState('date-desc');
+    const [allReviews, setAllReviews] = useState(reviews); // Manage reviews state
+
+    const handleReviewUpdated = (updatedReview) => {
+        setAllReviews((prevReviews) =>
+            prevReviews.map((review) => (review.id === updatedReview.id ? updatedReview : review))
+        );
+    };
+
+    const handleReviewDeleted = (deletedReviewId) => {
+        setAllReviews((prevReviews) =>
+            prevReviews.filter((review) => review.id !== deletedReviewId)
+        );
+    };
 
     /**
      * Sorts the reviews array based on the current sorting criteria.
@@ -34,7 +47,7 @@ export default function ProductReviews({ reviews }) {
      *
      * @returns {Array} A sorted array of reviews.
      */
-    const sortedReviews = [...reviews].sort((a, b) => {
+    const sortedReviews = [...allReviews].sort((a, b) => {
         if (reviewSort === 'date-desc') {
             return new Date(b.date) - new Date(a.date);
         } else if (reviewSort === 'date-asc') {
@@ -69,7 +82,15 @@ export default function ProductReviews({ reviews }) {
             </div>
 
             {/* Render sorted reviews */}
-            <Reviews reviews={sortedReviews} />
+            {sortedReviews.map((review) => (
+                <Reviews
+                    key={review.id}
+                    review={review}
+                    productId={productId}
+                    onReviewUpdated={handleReviewUpdated}
+                    onReviewDeleted={handleReviewDeleted}
+                />
+            ))}
         </div>
     );
 }
