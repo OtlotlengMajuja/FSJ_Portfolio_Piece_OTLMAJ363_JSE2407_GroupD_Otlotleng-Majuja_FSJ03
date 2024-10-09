@@ -1,8 +1,11 @@
-import { getProductById } from '@/app/lib/api';
+
 import Link from 'next/link';
 import ImageGallery from '@/app/components/gallery';
+import { getProductById } from '@/app/lib/api';
 import Reviews from '@/app/components/reviews';
 import Error from '@/app/error';
+import AddReview from '@/app/components/AddReview';
+import { useAuth } from '@/app/lib/useAuth';
 
 /**
  * Generates metadata for the product page.
@@ -33,6 +36,7 @@ export async function generateMetadata({ params }) {
 export default async function ProductPage({ params, searchParams }) {
     const { id } = params;  // Extract product ID from URL parameters
     const { reviewSort } = searchParams;
+    const { user } = useAuth();
     let product;
     let error;
 
@@ -62,6 +66,22 @@ export default async function ProductPage({ params, searchParams }) {
         const params = new URLSearchParams(searchParams);
         params.delete('reviewSort'); // Remove reviewSort parameter
         return `/?${params.toString()}`;
+    };
+
+    // Handlers for review actions
+    const handleReviewAdded = (newReview) => {
+        product.reviews.push(newReview);
+        alert('Your review has been added successfully!');
+    };
+
+    const handleReviewUpdated = (updatedReview) => {
+        product.reviews = product.reviews.map(review =>
+            review.id === updatedReview.id ? updatedReview : review
+        );
+    };
+
+    const handleReviewDeleted = (reviewId) => {
+        product.reviews = product.reviews.filter(review => review.id !== reviewId);
     };
 
     return (
@@ -119,7 +139,19 @@ export default async function ProductPage({ params, searchParams }) {
                 </div>
 
                 {/* Render customer reviews using the Reviews component */}
-                <Reviews reviews={sortedReviews} />
+                <Reviews
+                    reviews={sortedReviews}
+                    productId={id}
+                    onReviewUpdated={handleReviewUpdated}
+                    onReviewDeleted={handleReviewDeleted}
+                />
+
+                {/* Add Review form for logged-in users */}
+                {user ? (
+                    <AddReview productId={id} onReviewAdded={handleReviewAdded} />
+                ) : (
+                    <p className="p-4 text-center">Please log in to add a review.</p>
+                )}
             </div>
         </div>
     );
