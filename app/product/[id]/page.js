@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
 export default async function ProductPage({ params, searchParams }) {
     const { id } = params;  // Extract product ID from URL parameters
     const { reviewSort } = searchParams;
-    const { user } = useAuth();
+    const auth = useAuth();
     let product;
     let error;
 
@@ -147,7 +147,7 @@ export default async function ProductPage({ params, searchParams }) {
                 />
 
                 {/* Add Review form for logged-in users */}
-                {user ? (
+                {auth ? (
                     <AddReview productId={id} onReviewAdded={handleReviewAdded} />
                 ) : (
                     <p className="p-4 text-center">Please log in to add a review.</p>
