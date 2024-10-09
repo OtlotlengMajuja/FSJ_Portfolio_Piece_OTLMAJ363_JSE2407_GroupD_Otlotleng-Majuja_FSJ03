@@ -11,6 +11,16 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Check if all required configuration values are present
+const missingKeys = Object.entries(firebaseConfig)
+    .filter(([key, value]) => !value)
+    .map(([key]) => key);
+
+if (missingKeys.length > 0) {
+    console.error(`Missing Firebase configuration keys: ${missingKeys.join(', ')}`);
+    throw new Error('Firebase configuration is incomplete. Check your environment variables.');
+}
+
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);

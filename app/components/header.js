@@ -31,7 +31,8 @@ export default function Header() {
             setIsSignInModalOpen(false); // Close the modal on successful sign-in
             setAuthError(null);
         } catch (error) {
-            setAuthError(error.message);
+            console.error("Sign-in error:", error);
+            setAuthError(error.message || "An error occurred during sign-in. Please try again.");
         }
     };
 
@@ -40,6 +41,7 @@ export default function Header() {
             await signOutUser();
             setAuthError(null);
         } catch (error) {
+            console.error("Sign-out error:", error);
             setAuthError("Failed to sign out. Please try again.");
         }
     };
@@ -50,7 +52,8 @@ export default function Header() {
             setIsSignUpModalOpen(false); // Close the modal on successful sign-up
             setAuthError(null);
         } catch (error) {
-            setAuthError(error.message);
+            console.error("Sign-up error:", error);
+            setAuthError(error.message || "An error occurred during sign-up. Please try again.");
         }
     };
 
