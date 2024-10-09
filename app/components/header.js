@@ -21,6 +21,7 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
     const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+    const [authError, setAuthError] = useState(null);
 
     const { user, loading } = useAuth();
 
@@ -28,18 +29,18 @@ export default function Header() {
         try {
             await signIn(email, password);
             setIsSignInModalOpen(false); // Close the modal on successful sign-in
-            window.location.reload(); // Refresh to update auth state
+            setAuthError(null);
         } catch (error) {
-            console.error("Couldn't sign-in:", error);
+            setAuthError(error.message);
         }
     };
 
     const handleSignOut = async () => {
         try {
             await signOutUser();
-            window.location.reload(); // Refresh to update auth state
+            setAuthError(null);
         } catch (error) {
-            console.error("Couldn't sign-out:", error);
+            setAuthError("Failed to sign out. Please try again.");
         }
     };
 
@@ -47,14 +48,14 @@ export default function Header() {
         try {
             await signUp(email, password);
             setIsSignUpModalOpen(false); // Close the modal on successful sign-up
-            window.location.reload(); // Refresh to update auth state
+            setAuthError(null);
         } catch (error) {
-            console.error("Couldn't sign-up:", error);
+            setAuthError(error.message);
         }
     };
 
     if (loading) {
-        return <Loading />; // Or any loading indicator
+        return <Loading />;
     }
 
     return (
@@ -124,6 +125,13 @@ export default function Header() {
                     </ul>
                 </nav>
             </div>
+
+            {/* Error message */}
+            {authError && (
+                <div className="bg-red-500 text-white p-2 text-center">
+                    {authError}
+                </div>
+            )}
 
             {/* Modals */}
             {isSignInModalOpen && <SignInModal onClose={() => setIsSignInModalOpen(false)} onSignIn={handleSignIn} />}

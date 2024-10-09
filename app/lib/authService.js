@@ -11,6 +11,7 @@ export const signUp = async (email, password) => {
         await createSession(userCredential.user);
         return userCredential.user;
     } catch (error) {
+        console.error("Sign-up error:", error);
         throw error;
     }
 };
@@ -21,6 +22,10 @@ export const signIn = async (email, password) => {
         await createSession(userCredential.user);
         return userCredential.user;
     } catch (error) {
+        console.error("Sign-in error:", error);
+        if (error.code === 'auth/invalid-credential') {
+            throw new Error('Invalid email or password. Please try again.');
+        }
         throw error;
     }
 };
@@ -30,6 +35,7 @@ export const signOutUser = async () => {
         await firebaseSignOut(auth);
         await fetch('/api/logout', { method: 'POST' });
     } catch (error) {
+        console.error("Sign-out error:", error);
         throw error;
     }
 };
