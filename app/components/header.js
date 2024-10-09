@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link';
-import { useState, use } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../lib/useAuth';
 import { signIn, signOutUser, signUp } from '../lib/authService';
+import Loading from '../loading';
 import { RiUser3Line, RiLoginBoxLine, RiLogoutBoxRLine } from 'react-icons/ri';
 import SignInModal from './SignInModal';
 import SignUpModal from './SignUpModal';
@@ -21,12 +22,13 @@ export default function Header() {
     const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
     const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
 
-    const auth = useAuth();
+    const { user, loading } = useAuth();
 
     const handleSignIn = async (email, password) => {
         try {
             await signIn(email, password);
             setIsSignInModalOpen(false); // Close the modal on successful sign-in
+            window.location.reload(); // Refresh to update auth state
         } catch (error) {
             console.error("Couldn't sign-in:", error);
         }
@@ -35,6 +37,7 @@ export default function Header() {
     const handleSignOut = async () => {
         try {
             await signOutUser();
+            window.location.reload(); // Refresh to update auth state
         } catch (error) {
             console.error("Couldn't sign-out:", error);
         }
@@ -44,10 +47,15 @@ export default function Header() {
         try {
             await signUp(email, password);
             setIsSignUpModalOpen(false); // Close the modal on successful sign-up
+            window.location.reload(); // Refresh to update auth state
         } catch (error) {
             console.error("Couldn't sign-up:", error);
         }
     };
+
+    if (loading) {
+        return <Loading />; // Or any loading indicator
+    }
 
     return (
         <header className="bg-primary shadow-md">
@@ -80,7 +88,7 @@ export default function Header() {
                             <RiLoginBoxLine />
                             <span>Sign In</span>
                         </button>
-                        <button href="#" onClick={() => setIsSignUpModalOpen(true)} className="text-white flex items-center space-x-1 hover:text-primary-dark transition-colors duration-300">
+                        <button onClick={() => setIsSignUpModalOpen(true)} className="text-white flex items-center space-x-1 hover:text-primary-dark transition-colors duration-300">
                             <span>Sign Up</span>
                         </button>
                     </div>

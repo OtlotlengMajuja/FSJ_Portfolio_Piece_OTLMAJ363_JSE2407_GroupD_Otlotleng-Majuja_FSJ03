@@ -2,13 +2,13 @@ import { auth } from "./firebase";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged
+    signOut as firebaseSignOut
 } from "firebase/auth";
 
 export const signUp = async (email, password) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await createSession(userCredential.user);
         return userCredential.user;
     } catch (error) {
         throw error;
@@ -18,17 +18,7 @@ export const signUp = async (email, password) => {
 export const signIn = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const idToken = await userCredential.user.getIdToken();
-
-        // Send token to backend to set as an HTTP-only cookie
-        await fetch('/api/session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ idToken }),
-        });
-
+        await createSession(userCredential.user);
         return userCredential.user;
     } catch (error) {
         throw error;
@@ -37,12 +27,28 @@ export const signIn = async (email, password) => {
 
 export const signOutUser = async () => {
     try {
-        await signOut(auth);
+        await firebaseSignOut(auth);
+        await fetch('/api/logout', { method: 'POST' });
     } catch (error) {
         throw error;
     }
 };
 
-export const listenToAuthChanges = (callback) => {
-    return onAuthStateChanged(auth, callback)
+const createSession = async (user) => {
+    const idToken = await user.getIdToken();
+    await fetch('/api/session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken }),
+    });
+};
+
+export const getCurrentUser = async () => {
+    const response = await fetch('/api/user');
+    if (response.ok) {
+        return response.json();
+    }
+    return null;
 };
