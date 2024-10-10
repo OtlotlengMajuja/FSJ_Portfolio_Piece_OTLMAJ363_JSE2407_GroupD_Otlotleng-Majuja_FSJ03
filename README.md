@@ -1,4 +1,4 @@
-# FSJ02 Challenge 2 - Curated Finds Boutique
+# FSJ03 Portfolio Piece - Curated Finds Boutique
 
 ## Introduction
 
