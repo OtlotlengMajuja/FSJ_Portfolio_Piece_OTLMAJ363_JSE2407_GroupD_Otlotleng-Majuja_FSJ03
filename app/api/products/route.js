@@ -16,12 +16,6 @@ async function getStartAtDoc(productsQuery, constraints, page, pageSize) {
     return snap.docs[snap.docs.length - 1];
 }
 
-export default async function handler(req, res) {
-    await verifyIdToken(req, res, async () => {
-        res.status(200).json({ message: 'Protected data' });
-    })
-}
-
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -70,7 +64,11 @@ export async function GET(request) {
         }
 
         // Calculate total pages and total products for pagination
-        const totalProducts = products.length;
+        const totalProductsQuery = category
+            ? query(productsQuery, where('category', '==', category))
+            : productsQuery;
+        const totalProductsSnapshot = await getDocs(totalProductsQuery);
+        const totalProducts = totalProductsSnapshot.size;
         const totalPages = Math.ceil(totalProducts / pageSize);
 
         return NextResponse.json({

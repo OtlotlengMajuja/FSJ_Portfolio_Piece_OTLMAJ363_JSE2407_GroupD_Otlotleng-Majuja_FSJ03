@@ -74,7 +74,7 @@ export async function getProductById(id) {
 
         // Check if the response is successful, throw an error if not
         if (!response.ok) {
-            throw new Error('Failed to fetch product with ID ${id}');
+            throw new Error('Failed to fetch product');
         }
 
         // Return the product data in JSON format

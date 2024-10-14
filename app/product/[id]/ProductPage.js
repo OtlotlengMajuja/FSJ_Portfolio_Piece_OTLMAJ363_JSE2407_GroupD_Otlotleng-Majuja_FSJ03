@@ -40,7 +40,7 @@ export default async function ProductPage({ params, searchParams }) {
     const [product, setProduct] = useState(null);
     const [error, setError] = useState(null);
     const { id } = params;  // Extract product ID from URL parameters
-    const { reviewSort } = searchParams;
+    const reviewSort = searchParams;
     const auth = useAuth();
 
     useEffect(() => {
@@ -162,13 +162,6 @@ export default async function ProductPage({ params, searchParams }) {
                     onReviewUpdated={handleReviewUpdated}
                     onReviewDeleted={handleReviewDeleted}
                 />
-
-                {/* Add Review form for logged-in users */}
-                {auth ? (
-                    <AddReview productId={id} onReviewAdded={handleReviewAdded} />
-                ) : (
-                    <p className="p-4 text-center">Please log in to add a review.</p>
-                )}
             </div>
         </div>
     );
