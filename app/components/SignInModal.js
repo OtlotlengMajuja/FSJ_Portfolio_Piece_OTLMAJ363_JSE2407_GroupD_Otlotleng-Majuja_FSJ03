@@ -36,7 +36,7 @@ export default function SignInModal({ onClose, onSignIn }) {
                     </div>
                     <button type="submit" className="bg-primary text-white p-2 rounded w-full">Sign In</button>
                 </form>
-                <button onClick={onClose} className="mt-4 text-primary hover:text-primary-dark">Close</button>
+                <button onClick={onClose} className="mt-4 text-black hover:text-primary-dark">Close</button>
             </div>
         </div>
     );

@@ -50,12 +50,12 @@ const SignUpModal = ({ onClose, onSignUp }) => {
                     </div>
                     <button
                         type="submit"
-                        className="bg-amber-600 text-white py-2 px-4 rounded hover:bg-amber-700"
+                        className="bg-primary text-white py-2 px-4 rounded hover:bg-amber-700"
                     >
                         Sign Up
                     </button>
                 </form>
-                <button onClick={onClose} className="mt-4 text-red-500">Close</button>
+                <button onClick={onClose} className="mt-4 text-black hover:text-primary-dark">Close</button>
             </div>
         </div>
     );
