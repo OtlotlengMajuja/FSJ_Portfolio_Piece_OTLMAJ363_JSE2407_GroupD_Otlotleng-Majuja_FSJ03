@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
-import { fetchProductById } from '@/app/api';
+import { getProductById } from '@/app/lib/api';
 import ProductPage from './ProductPage';
 
 export async function generateMetadata({ params }) {
-    const product = await fetchProductById(params.id);
+    const product = await getProductById(params.id);
 
     if (!product) {
         return {
@@ -18,13 +18,13 @@ export async function generateMetadata({ params }) {
     };
 }
 
-async function fetchProductData(id) {
-    const product = await fetchProductById(id);
+async function getProductData(id) {
+    const product = await getProductById(id);
     if (!product) notFound();
     return product;
 }
 
 export default async function Page({ params }) {
-    const product = await fetchProductData(params.id);
+    const product = await getProductData(params.id);
     return <ProductPage product={product} params={params} />;
 }

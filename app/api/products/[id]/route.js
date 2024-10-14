@@ -13,11 +13,17 @@ export async function GET(request, { params }) {
         const docSnap = await getDoc(productDoc);
 
         if (!docSnap.exists()) {
-            return new Response(JSON.stringify({ error: "Product not found" }), { status: 404 });
+            return new Response(JSON.stringify({ error: "Product not found" }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
-        return NextResponse.json(docSnap.data());
+        return NextResponse.json({ id: docSnap.id, ...docSnap.data() });
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 }
