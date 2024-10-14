@@ -1,10 +1,11 @@
-// endpoints for individual products
+// /api/product/[id]/route.js
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 export async function GET(request, { params }) {
     const { id } = params;
+
     // Pad the product's ID with leading zeros (assuming max 3 digits)
     const paddedId = id.toString().padStart(3, "0");
 
@@ -13,17 +14,13 @@ export async function GET(request, { params }) {
         const docSnap = await getDoc(productDoc);
 
         if (!docSnap.exists()) {
-            return new Response(JSON.stringify({ error: "Product not found" }), {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' }
-            });
+            return NextResponse.json({ error: "Product not found" }, { status: 404 });
         }
 
+        // Return the product data along with its ID
         return NextResponse.json({ id: docSnap.id, ...docSnap.data() });
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        console.error("Error fetching product:", error);
+        return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });
     }
 }
