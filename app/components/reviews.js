@@ -5,19 +5,36 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/useAuth";
 
 /**
+ * @typedef {Object} Review
+ * @property {string} reviewerName - The name of the person who wrote the review
+ * @property {string} date - The date the review was written, in a valid date format
+ * @property {number} rating - The rating given by the reviewer, between 1 and 5
+ * @property {string} comment - The review text or comment provided by the customer
+ */
+
+/**
+ * @typedef {Object} ReviewsProps
+ * @property {Review[]} reviews - An array of review objects to be displayed
+ * @property {string} productId - The ID of the product being reviewed
+ * @property {Function} onReviewAdded - Callback function when a review is added
+ * @property {Function} onReviewUpdated - Callback function when a review is updated
+ * @property {Function} onReviewDeleted - Callback function when a review is deleted
+ */
+
+/**
  * Reviews component that displays a list of customer reviews for a product.
  * The reviews can be sorted by the most recent date or by rating.
  *
- * @param {Object} props - The properties passed to the Reviews component.
- * @param {Object[]} props.reviews - An array of review objects to be displayed.
- * @param {string} props.reviews[].reviewerName - The name of the person who wrote the review.
- * @param {string} props.reviews[].date - The date the review was written, in a valid date format.
- * @param {number} props.reviews[].rating - The rating given by the reviewer, between 1 and 5.
- * @param {string} props.reviews[].comment - The review text or comment provided by the customer.
- * 
- * @returns {JSX.Element} A list of customer reviews, including reviewer name, date, rating, and comment.
+ * @param {ReviewsProps} props - The properties passed to the Reviews component
+ * @returns {JSX.Element} A list of customer reviews, including reviewer name, date, rating, and comment
  */
-export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpdated, onReviewDeleted }) {
+export default function Reviews({
+    reviews,
+    productId,
+    onReviewAdded,
+    onReviewUpdated,
+    onReviewDeleted
+}) {
     const router = useRouter(); // Hook to handle routing
     const [sortOption, setSortOption] = useState(''); // State to track the selected sort option
     const [sortedReviews, setSortedReviews] = useState(reviews);
@@ -54,10 +71,17 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
         }
     }, [sortOption, reviews, router]);
 
+    /**
+     * Handles the change in sort option for reviews
+     * @param {React.ChangeEvent<HTMLSelectElement>} e - The event object
+     */
     const handleSortChange = (e) => {
         setSortOption(e.target.value);
     };
 
+    /**
+     * Handles user sign-in
+     */
     const handleSignIn = async () => {
         try {
             await signIn(email, password);
@@ -70,6 +94,9 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
         }
     };
 
+    /**
+     * Handles adding a new review
+     */
     const handleAddReview = async () => {
         if (!user) {
             setError('You must be logged in to add a review.');
@@ -99,6 +126,10 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
         }
     };
 
+    /**
+     * Handles editing an existing review
+     * @param {string} reviewId - The ID of the review to edit
+     */
     const handleEditReview = async (reviewId) => {
         try {
             const response = await fetch(`/api/products/${productId}/reviews`, {
@@ -123,6 +154,10 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
         }
     };
 
+    /**
+     * Handles deleting a review
+     * @param {string} reviewId - The ID of the review to delete
+     */
     const handleDeleteReview = async (reviewId) => {
         try {
             const response = await fetch(`/api/products/${productId}/reviews`, {
@@ -143,6 +178,11 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
         }
     };
 
+    /**
+     * Renders star rating
+     * @param {number} rating - The rating to render
+     * @returns {JSX.Element} Star rating display
+     */
     const renderStars = (rating) => {
         return (
             <div className="flex text-black" aria-label={`Rating: ${rating} out of 5`}>

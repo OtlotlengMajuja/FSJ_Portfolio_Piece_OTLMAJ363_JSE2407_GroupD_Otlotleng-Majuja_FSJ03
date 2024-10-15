@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { signIn } from '../lib/authService';
 
+/**
+ * SignIn component for user authentication
+ * @returns {JSX.Element} Sign-in form
+ */
 const SignIn = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
 
+    /**
+     * Handles form submission for sign-in
+     * @param {React.FormEvent<HTMLFormElement>} e - The form event
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
