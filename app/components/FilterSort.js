@@ -101,7 +101,7 @@ export function FilterByCategory({ categories, selectedCategory, onCategoryChang
             className="p-2 border rounded-md"
         >
             <option value="">All Categories</option>
-            {safeCategories.map((category) => (
+            {categories && categories.map((category) => (
                 <option key={category} value={category}>
                     {category}
                 </option>

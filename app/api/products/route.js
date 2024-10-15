@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
 import { collection, query, getDocs, orderBy, limit, startAfter, where } from 'firebase/firestore';
-import { verifyIdToken } from '@/app/lib/authMiddleware';
 import Fuse from 'fuse.js';
 
 async function getStartAtDoc(productsQuery, constraints, page, pageSize) {
@@ -26,7 +25,7 @@ export async function GET(request) {
         const sortBy = searchParams.get('sortBy') || 'price';
         const order = searchParams.get('order') || 'asc';
 
-        let productsQuery = collection(db, 'products');
+        const productsQuery = collection(db, 'products');
         let constraints = [];
 
         // Apply category filter
@@ -64,11 +63,7 @@ export async function GET(request) {
         }
 
         // Calculate total pages and total products for pagination
-        const totalProductsQuery = category
-            ? query(productsQuery, where('category', '==', category))
-            : productsQuery;
-        const totalProductsSnapshot = await getDocs(totalProductsQuery);
-        const totalProducts = totalProductsSnapshot.size;
+        const totalProducts = products.length;
         const totalPages = Math.ceil(totalProducts / pageSize);
 
         return NextResponse.json({
