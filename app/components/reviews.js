@@ -184,7 +184,7 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
                             placeholder="Enter your password"
                         />
                     </div>
-                    <button onClick={handleSignIn} className="bg-indigo-600 text-white py-2 px-4 rounded">
+                    <button onClick={handleSignIn} className="bg-primary text-white py-2 px-4 rounded">
                         Sign In
                     </button>
                 </div>
@@ -216,7 +216,7 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
                             placeholder="Enter your review"
                         />
                     </div>
-                    <button onClick={handleAddReview} className="bg-indigo-600 text-white py-2 px-4 rounded">
+                    <button onClick={handleAddReview} className="bg-primary text-white py-2 px-4 rounded">
                         Submit Review
                     </button>
                 </div>
