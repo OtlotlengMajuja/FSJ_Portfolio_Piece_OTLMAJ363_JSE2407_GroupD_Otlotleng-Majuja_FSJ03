@@ -110,6 +110,27 @@ export default function Home({
   }, [params, updateURL]);
 
   /**
+   
+Sets up a service worker to detect new versions of the app. If a new version is found,
+it prompts the user to refresh the page.*/
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              if (confirm('A new version of the app is available. Refresh to update?')) {
+                window.location.reload();
+              }
+            }
+          });
+        });
+      });
+    }
+  }, []);
+
+  /**
    * Handles search input change.
    *
    * @param {string} newSearch - The new search query.

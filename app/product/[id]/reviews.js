@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Reviews from '@/app/components/reviews';
+import { useAuth } from '@/app/lib/useAuth';
 
 /**
  * Renders the reviews section with sorting functionality.
@@ -20,21 +21,78 @@ import Reviews from '@/app/components/reviews';
  * 
  * <ReviewsSection reviews={reviews} />
  */
-export default function ProductReviews({ reviews, productId }) {
+export default function ProductReviews({ initialReviews, productId }) {
     // State to store the current sort option for the reviews
     const [reviewSort, setReviewSort] = useState('date-desc');
-    const [allReviews, setAllReviews] = useState(reviews); // Manage reviews state
+    const [allReviews, setReviews] = useState(initialReviews); // Manage reviews state
+    const { user } = useAuth;
 
-    const handleReviewUpdated = (updatedReview) => {
-        setAllReviews((prevReviews) =>
-            prevReviews.map((review) => (review.id === updatedReview.id ? updatedReview : review))
-        );
+    const handleAddReview = async (newReview) => {
+        try {
+            const response = await fetch(`/api/products/${productId}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newReview),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add review');
+            }
+
+            const addedReview = await response.json();
+            setReviews((prevReviews) => [...prevReviews, addedReview]);
+            alert('Your review has been added successfully!');
+        } catch (error) {
+            console.error('Error adding review:', error);
+            alert('Failed to add review. Please try again.');
+        }
     };
 
-    const handleReviewDeleted = (deletedReviewId) => {
-        setAllReviews((prevReviews) =>
-            prevReviews.filter((review) => review.id !== deletedReviewId)
-        );
+    const handleReviewUpdated = async (updatedReview) => {
+        try {
+            const response = await fetch(`/api/products/${productId}/reviews/${updatedReview.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedReview),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update review');
+            }
+
+            const updated = await response.json();
+            setReviews((prevReviews) =>
+                prevReviews.map((review) => (review.id === updated.id ? updated : review))
+            );
+            alert('Your review has been updated successfully!');
+        } catch (error) {
+            console.error('Error updating review:', error);
+            alert('Failed to update review. Please try again.');
+        }
+    };
+
+    const handleReviewDeleted = async (reviewId) => {
+        try {
+            const response = await fetch(`/api/products/${productId}/reviews/${reviewId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete review');
+            }
+
+            setReviews((prevReviews) =>
+                prevReviews.filter((review) => review.id !== reviewId)
+            );
+            alert('Your review has been deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            alert('Failed to delete review. Please try again.');
+        }
     };
 
     /**
@@ -47,7 +105,7 @@ export default function ProductReviews({ reviews, productId }) {
      *
      * @returns {Array} A sorted array of reviews.
      */
-    const sortedReviews = [...allReviews].sort((a, b) => {
+    const sortedReviews = [...reviews].sort((a, b) => {
         if (reviewSort === 'date-desc') {
             return new Date(b.date) - new Date(a.date);
         } else if (reviewSort === 'date-asc') {
@@ -81,6 +139,10 @@ export default function ProductReviews({ reviews, productId }) {
                 </select>
             </div>
 
+            {user && (
+                <AddReviewForm onAddReview={handleAddReview} />
+            )}
+
             {/* Render sorted reviews */}
             {sortedReviews.map((review) => (
                 <Reviews
@@ -89,8 +151,57 @@ export default function ProductReviews({ reviews, productId }) {
                     productId={productId}
                     onReviewUpdated={handleReviewUpdated}
                     onReviewDeleted={handleReviewDeleted}
+                    isOwnReview={user && user.email === review.reviewerEmail}
                 />
             ))}
         </div>
+    );
+}
+
+function AddReviewForm({ onAddReview }) {
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onAddReview({ rating, comment });
+        setRating(5);
+        setComment('');
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="mb-8">
+            <h4 className="text-lg font-semibold mb-2">Add Your Review</h4>
+            <div className="mb-4">
+                <label className="block mb-2">Rating:</label>
+                <select
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="w-full p-2 border rounded"
+                >
+                    {[5, 4, 3, 2, 1].map((value) => (
+                        <option key={value} value={value}>
+                            {value} star{value !== 1 ? 's' : ''}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <div className="mb-4">
+                <label className="block mb-2">Comment:</label>
+                <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    rows="4"
+                    required
+                ></textarea>
+            </div>
+            <button
+                type="submit"
+                className="bg-primary text-white px-4 py-2 rounded hover:bg-black transition-colors duration-300"
+            >
+                Submit Review
+            </button>
+        </form>
     );
 }

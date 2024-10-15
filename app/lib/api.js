@@ -37,6 +37,13 @@ export async function getProducts({
             params.append('search', search);
         }
 
+        if (sortBy) {
+            params.append("sortBy", sortBy);
+        }
+        if (order) {
+            params.append("order", order);
+        }
+
         // Fetch the product data
         const response = await fetch(`/api/products?${params}`, {
             next: { revalidate: 60 },

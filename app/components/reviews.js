@@ -216,7 +216,7 @@ export default function Reviews({ reviews, productId, onReviewAdded, onReviewUpd
                             placeholder="Enter your review"
                         />
                     </div>
-                    <button onClick={handleAddReview} className="bg-primary text-white py-2 px-4 rounded">
+                    <button onClick={handleAddReview} className="bg- text-white py-2 px-4 rounded">
                         Submit Review
                     </button>
                 </div>
