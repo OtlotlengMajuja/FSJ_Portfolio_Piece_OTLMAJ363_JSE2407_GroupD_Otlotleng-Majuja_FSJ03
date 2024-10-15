@@ -1,5 +1,8 @@
 import admin from 'firebase-admin';
 
+/**
+ * Initializes Firebase Admin SDK if not already initialized, using credentials from environment variables.
+ */
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert({

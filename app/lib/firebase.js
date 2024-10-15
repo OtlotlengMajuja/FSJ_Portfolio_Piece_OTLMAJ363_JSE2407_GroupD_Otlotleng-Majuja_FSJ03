@@ -2,6 +2,10 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth"
 
+/**
+ * Firebase configuration object using environment variables.
+ * Checks for missing configuration keys and throws an error if any are missing.
+ */
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -21,8 +25,8 @@ if (missingKeys.length > 0) {
     throw new Error('Firebase configuration is incomplete. Check your environment variables.');
 }
 
+// Initialize Firebase app, Firestore, and Authentication
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 const auth = getAuth(app);
 

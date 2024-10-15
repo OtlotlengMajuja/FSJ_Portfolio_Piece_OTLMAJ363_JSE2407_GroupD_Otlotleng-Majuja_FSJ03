@@ -7,24 +7,7 @@ import { getProductById } from '@/app/lib/api';
 import Reviews from '@/app/components/reviews';
 import Error from '@/app/error';
 import Loading from '@/app/loading';
-import ProductReviews from './reviews';
 import { useAuth } from '@/app/lib/useAuth';
-
-/**
- * Generates metadata for the product page.
- *
- * @param {Object} props - The properties passed to the function.
- * @param {Object} props.params - The route parameters.
- * @param {string} props.params.id - The ID of the product.
- * @returns {Promise<Object>} The metadata object containing title and description.
- */
-export async function generateMetadata({ params }) {
-    const product = await getProductById(params.id);
-    return {
-        title: product.title,
-        description: product.description,
-    };
-}
 
 /**
  * ProductPage component that fetches and displays a single product's details.
@@ -79,12 +62,21 @@ export default async function ProductPage({ params, searchParams }) {
         return `/?${params.toString()}`;
     };
 
-    // Handlers for review actions
+    /**
+     * Handles adding a new review to the product.
+     * 
+     * @param {Object} newReview - The new review to be added.
+     */
     const handleReviewAdded = (newReview) => {
         product.reviews.push(newReview);
         alert('Your review has been added successfully!');
     };
 
+    /**
+     * Handles updating an existing review.
+     * 
+     * @param {Object} updatedReview - The updated review.
+     */
     const handleReviewUpdated = (updatedReview) => {
         setProduct(prevProduct => ({
             ...prevProduct,
@@ -94,6 +86,11 @@ export default async function ProductPage({ params, searchParams }) {
         }));
     };
 
+    /**
+     * Handles deleting a review.
+     * 
+     * @param {string|number} reviewId - The ID of the review to be deleted.
+     */
     const handleReviewDeleted = (reviewId) => {
         setProduct(prevProduct => ({
             ...prevProduct,
@@ -159,6 +156,7 @@ export default async function ProductPage({ params, searchParams }) {
                 <Reviews
                     reviews={sortedReviews}
                     productId={id}
+                    onReviewAdded={handleReviewAdded}
                     onReviewUpdated={handleReviewUpdated}
                     onReviewDeleted={handleReviewDeleted}
                 />

@@ -27,6 +27,11 @@ export default function ProductReviews({ initialReviews, productId }) {
     const [allReviews, setReviews] = useState(initialReviews); // Manage reviews state
     const { user } = useAuth;
 
+    /**
+     * Handles adding a new review.
+     * 
+     * @param {Object} newReview - The new review to be added.
+     */
     const handleAddReview = async (newReview) => {
         try {
             const response = await fetch(`/api/products/${productId}/reviews`, {
@@ -50,6 +55,11 @@ export default function ProductReviews({ initialReviews, productId }) {
         }
     };
 
+    /**
+     * Handles updating an existing review.
+     * 
+     * @param {Object} updatedReview - The updated review.
+     */
     const handleReviewUpdated = async (updatedReview) => {
         try {
             const response = await fetch(`/api/products/${productId}/reviews/${updatedReview.id}`, {
@@ -75,6 +85,11 @@ export default function ProductReviews({ initialReviews, productId }) {
         }
     };
 
+    /**
+     * Handles deleting a review.
+     * 
+     * @param {string|number} reviewId - The ID of the review to be deleted.
+     */
     const handleReviewDeleted = async (reviewId) => {
         try {
             const response = await fetch(`/api/products/${productId}/reviews/${reviewId}`, {
@@ -105,7 +120,7 @@ export default function ProductReviews({ initialReviews, productId }) {
      *
      * @returns {Array} A sorted array of reviews.
      */
-    const sortedReviews = [...reviews].sort((a, b) => {
+    const sortedReviews = [...allReviews].sort((a, b) => {
         if (reviewSort === 'date-desc') {
             return new Date(b.date) - new Date(a.date);
         } else if (reviewSort === 'date-asc') {
@@ -158,10 +173,22 @@ export default function ProductReviews({ initialReviews, productId }) {
     );
 }
 
+/**
+ * Form component for adding a new review.
+ *
+ * @param {Object} props - The component props.
+ * @param {Function} props.onAddReview - Callback function to handle adding a new review.
+ * @returns {JSX.Element} The rendered form for adding a review.
+ */
 function AddReviewForm({ onAddReview }) {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
 
+    /**
+    * Handles form submission for adding a new review.
+    * 
+    * @param {Event} e - The form submission event.
+    */
     const handleSubmit = (e) => {
         e.preventDefault();
         onAddReview({ rating, comment });
