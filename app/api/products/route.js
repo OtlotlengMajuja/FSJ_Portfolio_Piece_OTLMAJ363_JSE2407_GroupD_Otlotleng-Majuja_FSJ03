@@ -1,9 +1,23 @@
-// create API endpoints
+/**
+ * GET API endpoint for retrieving and searching products with pagination.
+ *
+ * @param {Request} request - The request object containing search parameters for products.
+ * @returns {NextResponse} - A JSON response with paginated and optionally filtered product data.
+ */
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
 import { collection, query, getDocs, orderBy, limit, startAfter, where } from 'firebase/firestore';
 import Fuse from 'fuse.js';
 
+/**
+ * Helper function to get the document that starts a page in the query.
+ * 
+ * @param {Query} productsQuery - Firestore collection reference.
+ * @param {Array} constraints - The query constraints applied to products.
+ * @param {number} page - The current page number.
+ * @param {number} pageSize - The number of items per page.
+ * @returns {Promise<DocumentSnapshot|null>} - The last document of the previous page, or null for the first page.
+ */
 async function getStartAtDoc(productsQuery, constraints, page, pageSize) {
     if (page <= 1) return null;
     const previousPageQuery = query(
@@ -15,6 +29,14 @@ async function getStartAtDoc(productsQuery, constraints, page, pageSize) {
     return snap.docs[snap.docs.length - 1];
 }
 
+/**
+ * @function GET
+ * @async
+ * @description Retrieves products based on query parameters
+ * @param {Object} request - The incoming request object
+ * @returns {Promise<NextResponse>} JSON response containing products and pagination info
+ * @throws {Error} If there's an issue retrieving the products
+ */
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);

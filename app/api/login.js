@@ -1,6 +1,18 @@
+/**
+ * @module api/login
+ * @description Handles user login and session creation
+ */
 import { auth } from '../lib/firebase-admin';
 import { serialize } from 'cookie';
 
+/**
+ * @function handler
+ * @async
+ * @description Handles POST requests for user login
+ * @param {Object} req - The incoming request object
+ * @param {Object} res - The response object
+ * @returns {Promise<void>}
+ */
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).end();

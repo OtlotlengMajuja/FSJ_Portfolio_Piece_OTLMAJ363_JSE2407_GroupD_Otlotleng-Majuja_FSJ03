@@ -1,8 +1,24 @@
-// /api/product/[id]/route.js
+/**
+ * GET API endpoint for retrieving a specific product by ID.
+ *
+ * @param {Request} request - The request object.
+ * @param {Object} params - Route parameters containing the product ID.
+ * @returns {NextResponse} - A JSON response with the product data or an error message.
+ */
 import { NextResponse } from 'next/server';
 import { db } from '@/app/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
+/**
+ * @function GET
+ * @async
+ * @description Retrieves a specific product by ID
+ * @param {Object} request - The incoming request object
+ * @param {Object} params - Route parameters
+ * @param {string} params.id - The product ID
+ * @returns {Promise<NextResponse>} JSON response containing the product data
+ * @throws {Error} If there's an issue retrieving the product
+ */
 export async function GET(request, { params }) {
     const { id } = params;
 
